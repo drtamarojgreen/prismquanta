@@ -15,11 +15,11 @@
 namespace fs = std::filesystem;
 
 // Configuration
-const std::string LOG_DIR = "../data/logs/";
-const std::string PROMPT_FILE = "../prompts/input_prompt.txt";
-const std::string TIMEOUT_MARKER = "../.timeout";
-const std::string RULES_FILE = "../config/rules.txt";
-const std::string PRIORITY_FILE = "../config/priorities.txt";
+const std::string LOG_DIR = "data/logs/";
+const std::string PROMPT_FILE = "prompts/input_prompt.txt";
+const std::string TIMEOUT_MARKER = ".timeout";
+const std::string RULES_FILE = "config/rules.txt";
+const std::string PRIORITY_FILE = "config/priorities.txt";
 const int POLL_INTERVAL_SEC = 60;        // Poll every 60 seconds
 const int TIMEOUT_DURATION_SEC = 7200;   // 2 hours
 
@@ -65,7 +65,7 @@ void set_timeout() {
 // Launches the full pipeline script
 void run_pipeline() {
     std::cout << "[INFO] Running LLM pipeline...\n";
-    int status = std::system("bash ../scripts/run_task.sh ../prompts/input_prompt.txt");
+    int status = std::system("bash scripts/run_task.sh prompts/input_prompt.txt");
     if (status != 0) {
         std::cerr << "[ERROR] Pipeline script failed with exit code: " << status << "\n";
         set_timeout();
