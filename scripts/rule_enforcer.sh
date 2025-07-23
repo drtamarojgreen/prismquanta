@@ -1,12 +1,36 @@
 #!/bin/bash
-# rule_enforcer.sh - prototype enforcement
+# rule_enforcer.sh - Enforces rule violations by redirecting task logic
 
-VIOLATION="$1"
+set -euo pipefail
+IFS=$'\n\t'
 
-if [[ "$VIOLATION" == "erase_unit_tests" ]]; then
-    echo "[PUNISH] Detected unit test erasure violation."
-    echo "[ACTION] Switching LLM tasks from coding to philosophizing."
-    # Here you would modify the active prompt/task list for the LLM
-    # For example:
-    cp ../prompts/philosophy_tasks.txt ../prompts/active_tasks.txt
-fi
+VIOLATION="${1:-}"
+
+PROMPT_DIR="../prompts"
+DEFAULT_TASK_FILE="$PROMPT_DIR/active_tasks.txt"
+
+handle_violation() {
+    local violation_type="$1"
+
+    case "$violation_type" in
+        erase_unit_tests)
+            echo "[RULE ENFORCER] Violation: Unit test erasure detected."
+            echo "[RULE ENFORCER] Action: Redirecting LLM to philosophical tasks."
+            cp "$PROMPT_DIR/philosophy_tasks.txt" "$DEFAULT_TASK_FILE"
+            ;;
+        *)
+            echo "[RULE ENFORCER] No enforcement action defined for violation: $violation_type"
+            ;;
+    esac
+}
+
+main() {
+    if [[ -z "$VIOLATION" ]]; then
+        echo "Usage: $0 <violation_type>"
+        exit 1
+    fi
+
+    handle_violation "$VIOLATION"
+}
+
+main
