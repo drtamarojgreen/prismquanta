@@ -222,3 +222,49 @@ This plan organizes tasks by directory and function, enabling modular implementa
   - Synchronize with `docs/README.md`.
 - **Output**: User-facing overview.
 
+# PrismQuanta Development Priorities
+
+This document outlines the development roadmap, ordered by priority.
+
+## P1: Core Functionality (MVP)
+These tasks are essential for a minimum viable product.
+
+1.  **Implement Core LLM Runner (`scripts/run_llm.sh`):**
+    -   Load the local GGML model.
+    -   Accept a prompt from stdin or a file.
+    -   Execute the model and capture the raw output.
+    -   This is the absolute highest priority; the system is non-functional without it.
+
+2.  **Implement Prompt Generation (`scripts/generate_prompt.sh`):**
+    -   Parse a PQL file (e.g., `pql/sample_commands.pql`).
+    -   Use `xmlstarlet` to extract commands and criteria.
+    -   Assemble the extracted parts into a structured prompt suitable for the LLM.
+    -   This script will be the primary input for `run_llm.sh`.
+
+## P2: Rule & Consequence Engine
+These tasks implement the unique cognitive-shaping features of PrismQuanta.
+
+3.  **Define Initial Rule Set (`rules/rules.xml`):**
+    -   Finalize the XML structure for rules, conditions, and consequences.
+    -   Create a corresponding `rules.xsd` for validation.
+    -   Populate `rules.xml` with 3-5 foundational rules (e.g., "must not refuse", "must use specified format").
+
+4.  **Implement Rule Enforcement (`scripts/enforce_rules.sh`):**
+    -   Accept an LLM response as input.
+    -   Parse `rules.xml` to get the active rules.
+    -   Evaluate the response against the rules and output a status (e.g., "PASS" or "FAIL:<rule_id>").
+
+5.  **Implement Reflection Loop (`scripts/reflect_and_retry.sh`):**
+    -   Triggered when `enforce_rules.sh` outputs a failure.
+    -   Looks up the consequence for the failed rule in `rules.xml`.
+    -   Generates a new "reflective" prompt and creates a recursive loop back to the prompt generator.
+
+## P3: Usability and Expansion
+These tasks improve the developer/user experience and expand the system's capabilities.
+
+6.  **Enhance Parsers and Tooling:**
+    -   Add functionality to parse `rules.xml` and list rules/consequences.
+    -   Improve logging in `logs/session.log` to capture the full flow: PQL -> Prompt -> Response -> Rule Check -> Reflection.
+
+7.  **Documentation and Examples:**
+    -   Keep `README.md` and all sample files (`.pql`, `.xml`) updated as features are added.
