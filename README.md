@@ -36,26 +36,40 @@ PrismQuanta runs entirely **offline**. It respects user privacy, avoids external
 
 ```plaintext
 PrismQuanta/
-├── scripts/
-│ ├── run_llm.sh # Launch script for the offline model
-│ ├── enforce_rules.sh # Applies rules and consequences before response
-│ ├── generate_prompt.sh # Parses PQL and generates prompt
-│ ├── reflect_and_retry.sh # Handles recursive reflection loops
-│
+├── config/
+│   ├── priorities.txt
+│   └── rules.txt
+├── docs/
+│   └── README.md
+├── interface/
+│   └── prismquanta_interface.cpp
+├── memory/
+│   ├── development_lessons.txt
+│   └── test.txt
+├── prompts/
+│   └── input_prompt.txt
 ├── rules/
-│ └── rules.xml # XML-based rule and consequence definitions
-│
-├── pql/
-│ ├── schema.xsd # Schema definition for PQL
-│ └── sample_commands.pql # Sample task flow in PQL
-│
-├── logs/
-│ └── session.log # Execution and reflection logs
-│
-├── model/
-│ └── ggml-model.bin # Local LLM model file (e.g., LLaMA, Mistral)
-│
-└── README.md # Project documentation
+│   ├── pql.xsd
+│   ├── pql_sample.xml
+│   └── rules.xsd
+├── scripts/
+│   ├── define_requirements.sh
+│   ├── enhanced_task_manager.sh
+│   ├── memory_review.sh
+│   ├── parse_pql.sh
+│   ├── plan_code_tasks.sh
+│   ├── pql_test_and_punish.sh
+│   ├── rule_enforcer.sh
+│   ├── run_planner.sh
+│   ├── run_task.sh
+│   ├── self_chat_loop.sh
+│   ├── strategize_project.sh
+│   ├── task_manager.sh
+│   └── validation_loop.sh
+├── .timeout
+├── main
+├── prismquanta_interface
+└── README.md
 ```
 
 ---

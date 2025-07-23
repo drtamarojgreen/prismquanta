@@ -16,20 +16,40 @@
 
 ```
 prismquanta/
-├── pql/                    # PQL command and schema definitions
-│   ├── pql-schema.xml
-│   └── examples/
-├── rules/                  # Rule and consequence system
-│   └── rulebook.xml
-├── prompts/                # Prompt templates and generators
-├── logs/                   # Reflective logs and audit trails
-├── scripts/                # Bash utilities
-│   ├── task-runner.sh
-│   ├── consequence-engine.sh
-│   └── template-parser.sh
-├── tests/                  # Unit tests for components
-│   └── test-runner.sh
-└── README.md               # Project documentation
+├── config/
+│   ├── priorities.txt
+│   └── rules.txt
+├── docs/
+│   └── README.md
+├── interface/
+│   └── prismquanta_interface.cpp
+├── memory/
+│   ├── development_lessons.txt
+│   └── test.txt
+├── prompts/
+│   └── input_prompt.txt
+├── rules/
+│   ├── pql.xsd
+│   ├── pql_sample.xml
+│   └── rules.xsd
+├── scripts/
+│   ├── define_requirements.sh
+│   ├── enhanced_task_manager.sh
+│   ├── memory_review.sh
+│   ├── parse_pql.sh
+│   ├── plan_code_tasks.sh
+│   ├── pql_test_and_punish.sh
+│   ├── rule_enforcer.sh
+│   ├── run_planner.sh
+│   ├── run_task.sh
+│   ├── self_chat_loop.sh
+│   ├── strategize_project.sh
+│   ├── task_manager.sh
+│   └── validation_loop.sh
+├── .timeout
+├── main
+├── prismquanta_interface
+└── README.md
 ```
 
 ---
