@@ -1,0 +1,11 @@
+# Task Priorities for the PrismQuanta Scheduler
+#
+# This file defines the execution priority for tasks known to the system.
+# The C++ interface (`prismquanta_interface.cpp`) parses this file to
+# determine which task to run next.
+#
+# Format: <task_id> <priority_level>
+# Higher number indicates higher priority.
+
+summarize-prismquanta  10
+task-001               5

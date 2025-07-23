@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tasks xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="pql.xsd">
+  
+  <task id="summarize-prismquanta">
+    <description>Summarize the following technical document.</description>
+    <commands>
+      <command>Read the provided document content.</command>
+      <command>Identify the key technological concepts discussed.</command>
+      <command>Generate a three-sentence summary.</command>
+      <command>List the key concepts as a bulleted list.</command>
+    </commands>
+    <criteria>
+      <criterion>The summary must be concise and neutral in tone.</criterion>
+      <criterion>The key concepts list must not exceed 5 bullet points.</criterion>
+      <criterion>The final output must be in Markdown format.</criterion>
+    </criteria>
+  </task>
+
+  <!-- This is the example task from the parse_pql.sh script -->
+  <task id="task-001">
+    <description>Analyze the provided text for emotional sentiment.</description>
+    <commands>
+      <command>ANALYZE sentiment</command>
+    </commands>
+    <criteria>
+      <criterion>Output must be in JSON format.</criterion>
+    </criteria>
+  </task>
+
+</tasks>
