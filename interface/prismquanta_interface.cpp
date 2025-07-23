@@ -1,6 +1,5 @@
 // prismquanta_interface.cpp
-// PrismQuanta - Offline Autonomous LLM Scheduler
-// C++ polling-based interface to control bash-scripted LLM workflows with priority and rule tracking
+// PrismQuanta - Offline Autonomous LLM Scheduler with Logging
 
 #include <iostream>
 #include <fstream>
@@ -15,78 +14,99 @@
 namespace fs = std::filesystem;
 
 // Configuration
-const std::string LOG_DIR = "data/logs/";
+const std::string LOG_FILE = "data/logs/interface.log";
 const std::string PROMPT_FILE = "prompts/input_prompt.txt";
 const std::string TIMEOUT_MARKER = ".timeout";
-const std::string RULES_FILE = "config/rules.txt";
-const std::string PRIORITY_FILE = "config/priorities.txt";
-const int POLL_INTERVAL_SEC = 60;        // Poll every 60 seconds
-const int TIMEOUT_DURATION_SEC = 7200;   // 2 hours
+const std::string RULES_FILE = "rules/rules.txt";
+const std::string PRIORITY_FILE = "rules/priorities.txt";
+const int POLL_INTERVAL_SEC = 60;
+const int TIMEOUT_DURATION_SEC = 7200;
 
-// Load priorities from file
+// Logging utility
+void write_log(const std::string& entry) {
+    std::ofstream log(LOG_FILE, std::ios_base::app);
+    auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    log << "[" << std::ctime(&now) << "] " << entry << "\n";
+}
+
+// Load priorities
 std::map<std::string, int> load_priorities() {
+    write_log("Loading priorities...");
     std::map<std::string, int> priorities;
     std::ifstream in(PRIORITY_FILE);
+    if (!in) {
+        write_log("ERROR: Could not open priority file.");
+        return priorities;
+    }
     std::string task;
     int priority;
     while (in >> task >> priority) {
         priorities[task] = priority;
     }
+    write_log("Loaded " + std::to_string(priorities.size()) + " priority items.");
     return priorities;
 }
 
-// Load rules and consequences from file
+// Load rules
 std::vector<std::string> load_rules() {
+    write_log("Loading rules...");
     std::vector<std::string> rules;
     std::ifstream in(RULES_FILE);
+    if (!in) {
+        write_log("ERROR: Could not open rules file.");
+        return rules;
+    }
     std::string line;
     while (std::getline(in, line)) {
         rules.push_back(line);
     }
+    write_log("Loaded " + std::to_string(rules.size()) + " rules.");
     return rules;
 }
 
-// Utility to check if timeout marker exists
+// Timeout check
 bool in_timeout() {
     if (!fs::exists(TIMEOUT_MARKER)) return false;
     auto last_modified = fs::last_write_time(TIMEOUT_MARKER);
     auto now = fs::file_time_type::clock::now();
     auto diff = std::chrono::duration_cast<std::chrono::seconds>(now - last_modified).count();
-    return diff < TIMEOUT_DURATION_SEC;
+    bool timed_out = diff < TIMEOUT_DURATION_SEC;
+    if (timed_out)
+        write_log("Timeout marker active. Skipping task execution.");
+    return timed_out;
 }
 
-// Utility to create or update timeout marker
+// Set timeout
 void set_timeout() {
     std::ofstream out(TIMEOUT_MARKER);
     out << "timeout";
-    out.close();
+    write_log("Timeout marker updated.");
 }
 
-// Launches the full pipeline script
+// Run pipeline
 void run_pipeline() {
-    std::cout << "[INFO] Running LLM pipeline...\n";
-    int status = std::system("bash scripts/run_task.sh prompts/input_prompt.txt");
+    write_log("Running pipeline script...");
+    int status = std::system(("bash scripts/run_task.sh " + PROMPT_FILE).c_str());
     if (status != 0) {
-        std::cerr << "[ERROR] Pipeline script failed with exit code: " << status << "\n";
+        write_log("Pipeline execution failed. Exit code: " + std::to_string(status));
         set_timeout();
     } else {
-        std::cout << "[SUCCESS] Pipeline completed.\n";
+        write_log("Pipeline executed successfully.");
     }
 }
 
 int main() {
-    std::cout << "PrismQuanta Task Manager Started.\n";
+    std::cout << "PrismQuanta Task Manager Initialized.\n";
+    write_log("Interface startup initiated.");
 
     auto rules = load_rules();
     auto priorities = load_priorities();
 
-    std::cout << "[INFO] Loaded " << rules.size() << " rules and " << priorities.size() << " priority tasks.\n";
-
     while (true) {
-        std::cout << "\n[STATUS] Checking task loop...\n";
+        write_log("Polling loop triggered.");
 
         if (in_timeout()) {
-            std::cout << "[WAIT] In timeout period. Skipping run.\n";
+            write_log("System is in timeout. Awaiting next poll...");
         } else {
             run_pipeline();
         }
