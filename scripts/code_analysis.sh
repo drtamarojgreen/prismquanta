@@ -38,3 +38,14 @@ for file in $(find . -type f -not -path "./.git/*" -not -path "./scripts/code_an
         echo "$file"
     fi
 done
+
+# Project-specific Metrics
+echo -e "\nProject-specific Metrics:"
+task_count=$(grep -c "<task>" "rules/tasks.xml")
+echo "Number of tasks: $task_count"
+rule_count=$(grep -c "<rule>" "rules/rulebook.xml")
+echo "Number of rules: $rule_count"
+incident_count=$(wc -l < "config/rules.txt")
+echo "Number of incidents in rules.txt: $incident_count"
+prompt_count=$(find "prompts" -type f | wc -l)
+echo "Number of prompts: $prompt_count"
