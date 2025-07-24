@@ -139,7 +139,7 @@ This plan organizes tasks by directory and function, enabling modular implementa
   - Flag ambiguous tasks and revise.
 - **Output**: `memory/task_list_final.txt` and optional revisions.
 
-### pql_test_and_punish.sh
+### pql_test_and_consequence.sh
 - **Objective**: Check task outputs against rulebook and apply consequences.
 - **Tasks**:
   - Run post-task validations.

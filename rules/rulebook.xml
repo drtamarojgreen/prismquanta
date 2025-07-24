@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rules>
+  <rule id="1" severity="low">
+    <condition>Test condition</condition>
+    <consequence id="1">
+      <type>Test type</type>
+    </consequence>
+  </rule>
+</rules>
