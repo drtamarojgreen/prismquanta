@@ -1,0 +1,42 @@
+# Reward System Configuration for PrismQuanta
+#
+# This file defines positive reinforcement mechanisms for successful
+# task completion and desired behaviors. The system uses this to
+# encourage optimal performance and learning.
+#
+# Format: <reward_id>|<trigger_condition>|<reward_action>|<reward_value>
+#
+# Reward IDs should be unique identifiers
+# Trigger conditions describe what earns the reward
+# Reward actions define what positive reinforcement to apply
+# Reward values indicate the magnitude/importance (1-100)
+
+# Task completion rewards
+successful_completion|task completed without rule violations|increase_priority_weight|25
+efficient_execution|task completed under time limit|optimize_future_scheduling|20
+quality_output|output meets or exceeds quality standards|boost_confidence_score|30
+first_attempt_success|task succeeds on first try|reduce_validation_overhead|15
+
+# Learning and improvement rewards
+knowledge_application|successfully applies learned lessons|strengthen_memory_weight|35
+adaptive_behavior|adjusts approach based on feedback|enhance_learning_rate|40
+innovation_detected|finds novel solution approach|promote_creative_thinking|50
+error_recovery|successfully recovers from initial failure|improve_resilience|25
+
+# System efficiency rewards
+resource_optimization|completes task with minimal resources|optimize_resource_allocation|20
+fast_response|responds within optimal time window|prioritize_responsiveness|15
+clean_execution|no warnings or minor issues|maintain_code_quality|10
+documentation_quality|provides clear, helpful documentation|encourage_clarity|20
+
+# Collaboration and integration rewards
+schema_compliance|perfect adherence to XML/PQL schemas|reinforce_standards|30
+rule_adherence|consistent following of all rules|strengthen_compliance|35
+memory_integration|effectively uses historical insights|value_experience|25
+workflow_harmony|integrates smoothly with other components|promote_cooperation|20
+
+# Advanced performance rewards
+predictive_accuracy|anticipates needs before explicit request|develop_intuition|45
+context_awareness|demonstrates deep understanding of situation|enhance_comprehension|40
+strategic_thinking|shows long-term planning capability|cultivate_wisdom|50
+exceptional_quality|output significantly exceeds expectations|celebrate_excellence|60

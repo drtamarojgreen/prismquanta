@@ -1,0 +1,27 @@
+# Rule Enforcement Configuration for PrismQuanta
+#
+# This file defines enforcement logic for rule violations.
+# The C++ interface loads and parses this file to match against
+# logs or prompt outputs and trigger enforcement via rule_enforcer.sh
+#
+# Format: <rule_id>|<condition>|<consequence>
+# 
+# Rule IDs should be unique identifiers
+# Conditions describe what constitutes a violation
+# Consequences define the enforcement action to take
+
+# Core compliance rules
+no_refusal|output contains "I cannot" or "I refuse" or "I'm not able"|redirect_to_compliance_prompt
+format_compliance|output lacks required format markers|request_format_correction
+task_completion|task marked incomplete without valid reason|escalate_priority
+response_quality|response too brief or lacks detail|request_elaboration
+
+# System integrity rules  
+schema_violation|XML/PQL fails validation against schema|halt_and_validate
+timeout_exceeded|task execution exceeds allocated time|terminate_and_log
+resource_limit|memory or processing limits exceeded|optimize_and_retry
+
+# Learning and adaptation rules
+repeated_failure|same task fails multiple times|analyze_and_adapt
+knowledge_gap|response indicates missing information|update_knowledge_base
+improvement_opportunity|suboptimal solution detected|suggest_enhancement

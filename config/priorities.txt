@@ -7,5 +7,36 @@
 # Format: <task_id> <priority_level>
 # Higher number indicates higher priority.
 
-summarize-prismquanta  10
-task-001               5
+# Critical system tasks (Priority 90-100)
+system_initialization     100
+emergency_shutdown        95
+critical_error_handling   90
+
+# High priority operational tasks (Priority 70-89)
+rule_enforcement          85
+schema_validation         80
+memory_management         75
+priority_scheduling       70
+
+# Standard workflow tasks (Priority 40-69)
+pql_parsing              60
+prompt_generation        55
+llm_execution            50
+result_validation        45
+logging_operations       40
+
+# Development and maintenance tasks (Priority 20-39)
+code_analysis           35
+requirement_definition   30
+strategy_planning       25
+documentation_update    20
+
+# Background and optimization tasks (Priority 1-19)
+memory_review           15
+performance_optimization 10
+cleanup_operations       5
+experimental_features    1
+
+# Legacy tasks (maintained for compatibility)
+summarize-prismquanta    10
+task-001                 5
