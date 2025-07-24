@@ -58,7 +58,7 @@ PrismQuanta/
 │   ├── memory_review.sh
 │   ├── parse_pql.sh
 │   ├── plan_code_tasks.sh
-│   ├── pql_test_and_punish.sh
+│   ├── pql_test_and_consequence.sh
 │   ├── rule_enforcer.sh
 │   ├── run_planner.sh
 │   ├── run_task.sh

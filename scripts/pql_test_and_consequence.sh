@@ -1,5 +1,5 @@
 #!/bin/bash
-# pql_test_and_punish.sh
+# pql_test_and_consequence.sh
 
 PQL_TEST_FILE="pql_tests.xml"
 PHILOSOPHY_TASKS="philosophy_tasks.txt"
@@ -25,9 +25,9 @@ evaluate_tests() {
   fi
 }
 
-# Switch to philosophy tasks for soft punishment
-apply_soft_punishment() {
-  echo "$(date): Soft punishment applied. Switching to philosophy tasks." >> "$LOGFILE"
+# Switch to philosophy tasks for soft consequence
+apply_soft_consequence() {
+  echo "$(date): Soft consequence applied. Switching to philosophy tasks." >> "$LOGFILE"
   if [ -f "$PHILOSOPHY_TASKS" ]; then
     cp "$PHILOSOPHY_TASKS" "$ACTIVE_TASKS"
   else
@@ -53,5 +53,5 @@ run_tests
 if evaluate_tests; then
   apply_reward
 else
-  apply_soft_punishment
+  apply_soft_consequence
 fi
