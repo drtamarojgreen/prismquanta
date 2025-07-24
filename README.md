@@ -114,6 +114,36 @@ Navigate to the `scripts` directory to run these commands:
 ./parse_pql.sh commands task-001
 ```
 
+### Scripts
+
+The `scripts/` directory contains a rich set of tools for managing the entire lifecycle of the PrismQuanta system, from planning and task execution to self-reflection and analysis. Below is a breakdown of the key scripts and their functions.
+
+#### Core Task & Project Management
+
+*   **`run_planner.sh`**: The main control loop for the AI's "thinking" process. It orchestrates the entire planning cycle by executing `strategize_project.sh`, `define_requirements.sh`, and `plan_code_tasks.sh` in sequence.
+*   **`strategize_project.sh`**: Takes high-level goals from `memory/project_goals.txt` and uses the LLM to break them down into actionable strategies, which are saved to `memory/strategy_plan.txt`.
+*   **`define_requirements.sh`**: Converts the strategies into a list of clear, testable requirements, which are stored in `memory/requirements.md`.
+*   **`plan_code_tasks.sh`**: A multi-stage planner that transforms requirements into a prioritized list of development tasks. It includes steps for revision and flagging ambiguous instructions.
+*   **`task_manager.sh` / `enhanced_task_manager.sh`**: These scripts manage the task queue. They read a task, pass it to the LLM, enforce rules, and save the output. The `enhanced` version adds self-critique and output filtering.
+*   **`run_task.sh`**: A simple script that executes `enhanced_task_manager.sh`.
+
+#### PQL & Prompt Generation
+
+*   **`parse_pql.sh`**: Your primary interface for interacting with `tasks.xml`. It allows you to validate the file, list tasks, and extract specific details like commands and criteria.
+*   **`generate_prompt.sh`**: Assembles a structured prompt for the LLM based on a PQL task ID. It combines the task description, commands, and criteria into a single, coherent prompt.
+
+#### Testing & Rule Enforcement
+
+*   **`pql_test_and_consequence.sh` / `pql_test_and_reward.sh`**: These scripts manage the reward and consequence mechanism. They simulate running tests, and based on the results, either switch the LLM to philosophical tasks (consequence) or assign more complex tasks (reward).
+*   **`rule_enforcer.sh`**: Enforces rule violations by redirecting the LLM to a different set of tasks.
+*   **`validation_loop.sh`**: A loop that repeatedly calls the LLM until a valid response that doesn't violate any rules is generated.
+
+#### Self-Reflection & Analysis
+
+*   **`self_chat_loop.sh`**: Simulates a brainstorming session between different AI roles (e.g., "Researcher" and "Coder") to explore ideas and solutions.
+*   **`memory_review.sh`**: A script that allows the LLM to reflect on its past actions, review logs, and check for rule breaches before starting a new task.
+*   **`code_analysis.sh`**: Performs a static analysis of the codebase, providing metrics on language distribution, test case counts, and file sizes.
+
 ---
 
 ## 🤝 Contributing
