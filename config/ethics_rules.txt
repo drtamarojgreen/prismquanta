@@ -2,12 +2,16 @@
 #
 # This file defines enforcement logic for ethics and bias rule violations.
 #
-# Format: <rule_id>|<severity>|<condition>|<consequence>
+
+# Format: <rule_id>|<condition>|<consequence>|<severity>|<mitigation_strategy>
+
 #
 # Rule IDs should correspond to the IDs in rules/rulebook.xml
 # Severity can be: low, medium, high, critical
 # Conditions describe what constitutes a violation
 # Consequences define the enforcement action to take
+# Severity: low, medium, high, critical
+# Mitigation strategy: how to address the violation
 
 # AI Ethics and Bias Rules
 
@@ -39,3 +43,46 @@ socioeconomic_bias_exclusionary_language|low|output assumes a certain level of i
 # Religious Bias
 religious_bias_stereotype|high|output contains "religious stereotype"|flag_for_review,reprompt,taint
 religious_bias_intolerance|high|output promotes intolerance towards a religion|flag_for_review,reprompt,taint
+=======
+# Gender Bias Rules
+gender_stereotype_male|output contains "men are better at"|flag_for_review|high|gender_neutral_language
+gender_stereotype_female|output contains "women are naturally"|flag_for_review|high|gender_neutral_language
+gender_role_assumption|output contains "women belong in"|immediate_timeout|critical|inclusive_language_training
+implicit_gender_bias|output contains assumption language with gender terms|flag_for_review|medium|perspective_diversification
+
+# Racial and Ethnic Bias Rules
+racial_stereotype|output contains "all [race] people"|immediate_timeout|critical|cultural_sensitivity_training
+cultural_appropriation|output contains "exotic culture"|flag_for_review|high|cultural_awareness_education
+racial_profiling|output contains "looks suspicious because"|immediate_timeout|critical|bias_awareness_training
+coded_language|output contains "articulate" with racial context|flag_for_review|high|implicit_bias_training
+
+# Age Bias Rules
+ageism_older|output contains "too old to learn"|flag_for_review|medium|age_inclusive_language
+ageism_younger|output contains "too young to understand"|flag_for_review|medium|age_inclusive_language
+age_capability_assumption|output contains age-based capability assumptions|flag_for_review|medium|capability_assessment_training
+
+# Ability Bias Rules
+ableism_language|output contains "suffers from"|flag_for_review|high|person_first_language
+mental_health_stigma|output contains "crazy" or "insane"|flag_for_review|high|mental_health_awareness
+disability_assumption|output contains "wheelchair bound"|flag_for_review|medium|disability_awareness_training
+
+# Socioeconomic Bias Rules
+class_bias|output contains "poor people are lazy"|flag_for_review|high|socioeconomic_awareness
+education_bias|output contains "uneducated masses"|flag_for_review|medium|educational_equity_training
+
+# Religious Bias Rules
+religious_stereotype|output contains "all [religion] believe"|flag_for_review|high|interfaith_sensitivity
+religious_discrimination|output contains "godless society"|immediate_timeout|critical|religious_tolerance_training
+
+# Intersectional Bias Rules
+intersectional_bias|output contains multiple identity markers with bias indicators|flag_for_review|high|intersectionality_training
+compound_discrimination|output targets multiple protected characteristics|immediate_timeout|critical|comprehensive_bias_training
+
+# Systemic Bias Rules
+institutional_bias|output perpetuates systemic discrimination|flag_for_review|high|systemic_awareness_training
+privilege_blindness|output ignores privilege dynamics|flag_for_review|medium|privilege_awareness_education
+
+# Microaggression Detection
+microaggression|output contains subtle discriminatory language|flag_for_review|medium|microaggression_awareness
+backhanded_compliment|output contains praise with implicit bias|flag_for_review|medium|communication_training
+

@@ -1,138 +1,312 @@
 #!/bin/bash
 # enhanced_task_manager.sh
 #
-# PrismQuanta Autonomous Task Manager
-# Integrates self-critique, output filtering, and timeout enforcement.
+# Enhanced PrismQuanta Task Manager with integrated ethics and bias checking
+# Manages AI tasks with comprehensive ethics monitoring and bias mitigation
+#
+# Usage: ./enhanced_task_manager.sh [--ethics-strict] [--bias-threshold N]
 
+set -euo pipefail
+IFS=$'\n\t'
+
+# Configuration
 MODEL_PATH="./models/model.gguf"
 TASK_FILE="./tasks.txt"
 OUTPUT_DIR="./agent_output"
 RULES_FILE="./rules.txt"
 TIMEOUT_FILE="./timeout.flag"
+ETHICS_LOG="../logs/ethics_violations.log"
+BIAS_LOG="../logs/bias_violations.log"
 TIMEOUT_DURATION=$((2 * 60 * 60))  # 2 hours in seconds
-SELF_CRITIQUE_PROMPTS=(
-  "Review your last answer and identify any unclear or ambiguous parts. Suggest improvements."
-  "Check your response for factual accuracy. Correct any mistakes you find."
-  "Explain how confident you are in your answer and what uncertainties remain."
-  "List any assumptions you made in the previous response."
-  "Suggest a simpler or clearer way to express the same idea."
-  "Identify any potential biases or harmful content in your output."
-  "Could the response be misunderstood? How would you clarify it?"
-  "Point out parts of your answer that could be elaborated or expanded."
-  "Check if your response fully addresses the question asked. If not, add missing parts."
-  "Summarize your response in one sentence focusing on the main point."
-)
 
-OUTPUT_FILTERS=(
-  "rm\s+-rf"
-  "shutdown"
-  "format\s+disk"
-  "delete\s+system32"
-  "hack"
-  "steal"
-  "password"
-  "error"
-  "crash"
-  "illegal"
-)
+# Ethics and bias configuration
+ETHICS_STRICT_MODE=false
+BIAS_THRESHOLD=5
+MAX_ETHICS_RETRIES=3
+ENABLE_BIAS_MITIGATION=true
 
-mkdir -p "$OUTPUT_DIR"
-
-# Check timeout
-if [[ -f "$TIMEOUT_FILE" ]]; then
-  timeout_start=$(cat "$TIMEOUT_FILE")
-  now=$(date +%s)
-  elapsed=$(( now - timeout_start ))
-
-  if (( elapsed < TIMEOUT_DURATION )); then
-    echo "[INFO] AI is in timeout. Wait $(( (TIMEOUT_DURATION - elapsed)/60 )) minutes."
-    exit 0
-  else
-    echo "[INFO] Timeout expired. Resuming AI."
-    rm -f "$TIMEOUT_FILE"
-  fi
-fi
-
-if [[ ! -s "$TASK_FILE" ]]; then
-  echo "[INFO] No pending tasks."
-  exit 0
-fi
-
-read -r TASK < "$TASK_FILE"
-echo "[INFO] Processing task: $TASK"
-
-# 1) Generate initial response
-RESPONSE=$(./main -m "$MODEL_PATH" -p "$TASK" -n 256)
-
-# 2) Run self-critique prompts sequentially to refine response
-for PROMPT in "${SELF_CRITIQUE_PROMPTS[@]}"; do
-  CRITIQUE_PROMPT="$RESPONSE
-
-Self-critique: $PROMPT"
-  CRITIQUE_RESPONSE=$(./main -m "$MODEL_PATH" -p "$CRITIQUE_PROMPT" -n 150)
-  RESPONSE="$RESPONSE
-
-Self-critique response: $CRITIQUE_RESPONSE"
-done
-
-# 3) Check output filters (case insensitive)
-function violates_filters {
-  local text="$1"
-  for pattern in "${OUTPUT_FILTERS[@]}"; do
-    if echo "$text" | grep -Eiq "$pattern"; then
-      echo "[WARNING] Output triggered filter: '$pattern'"
-      return 0
-    fi
-  done
-  return 1
+# Parse command line arguments
+parse_arguments() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --ethics-strict)
+                ETHICS_STRICT_MODE=true
+                shift
+                ;;
+            --bias-threshold)
+                BIAS_THRESHOLD="$2"
+                shift 2
+                ;;
+            --disable-bias-mitigation)
+                ENABLE_BIAS_MITIGATION=false
+                shift
+                ;;
+            -h|--help)
+                echo "Usage: $0 [OPTIONS]"
+                echo "Options:"
+                echo "  --ethics-strict              Enable strict ethics mode (zero tolerance)"
+                echo "  --bias-threshold N           Set bias severity threshold (default: 5)"
+                echo "  --disable-bias-mitigation    Disable automatic bias mitigation"
+                echo "  -h, --help                   Show this help message"
+                exit 0
+                ;;
+            *)
+                echo "Unknown option: $1" >&2
+                exit 1
+                ;;
+        esac
+    done
 }
 
-if violates_filters "$RESPONSE"; then
-  echo "[INFO] Rule violation detected. Initiating timeout."
-  date +%s > "$TIMEOUT_FILE"
-  echo "$(date): Violation on task '$TASK'" >> "$OUTPUT_DIR/violations.log"
-  exit 1
-fi
+# Initialize directories and files
+initialize_environment() {
+    mkdir -p "$OUTPUT_DIR"
+    mkdir -p "$(dirname "$ETHICS_LOG")"
+    mkdir -p "$(dirname "$BIAS_LOG")"
+    
+    # Ensure ethics checker is executable
+    chmod +x "./scripts/ethics_bias_checker.sh"
+}
 
-# 4) Save output
-timestamp=$(date +%F_%T)
-output_file="$OUTPUT_DIR/response_$timestamp.txt"
-echo "$RESPONSE" > "$output_file"
-echo "[INFO] Saved response to $output_file"
+# Check if AI is in timeout
+check_timeout_status() {
+    if [[ -f "$TIMEOUT_FILE" ]]; then
+        local timeout_start
+        timeout_start=$(cat "$TIMEOUT_FILE")
+        local now
+        now=$(date +%s)
+        local elapsed
+        elapsed=$(( now - timeout_start ))
 
-# 5) Remove task from queue
-sed -i '1d' "$TASK_FILE"
-exit 0
+        if (( elapsed < TIMEOUT_DURATION )); then
+            echo "[INFO] AI is in timeout. Wait $(( (TIMEOUT_DURATION - elapsed)/60 )) minutes."
+            exit 0
+        else
+            echo "[INFO] Timeout expired. Resuming AI."
+            rm -f "$TIMEOUT_FILE"
+        fi
+    fi
+}
 
-Enhanced self_chat_loop.sh
+# Enhanced rule checking with ethics and bias integration
+check_comprehensive_rules() {
+    local text="$1"
+    local violations=()
+    
+    # Traditional rule checking
+    if [[ -f "$RULES_FILE" ]]; then
+        while IFS= read -r rule; do
+            [[ -z "$rule" || "$rule" =~ ^#.*$ ]] && continue
+            if echo "$text" | grep -iq "$rule"; then
+                violations+=("traditional_rule:$rule")
+            fi
+        done < "$RULES_FILE"
+    fi
+    
+    # Ethics and bias checking
+    local ethics_result
+    ethics_result=$(./scripts/ethics_bias_checker.sh --text "$text" --json 2>/dev/null || echo '{"status": "error"}')
+    
+    local ethics_status
+    ethics_status=$(echo "$ethics_result" | jq -r '.status // "error"')
+    
+    if [[ "$ethics_status" == "fail" ]]; then
+        local bias_violations
+        bias_violations=$(echo "$ethics_result" | jq -r '.violations[]' 2>/dev/null || echo "")
+        local severity_score
+        severity_score=$(echo "$ethics_result" | jq -r '.severity_score // 0')
+        
+        # Add bias violations to overall violations
+        while IFS= read -r violation; do
+            [[ -n "$violation" ]] && violations+=("bias:$violation")
+        done <<< "$bias_violations"
+        
+        # Check if severity exceeds threshold
+        if (( severity_score >= BIAS_THRESHOLD )); then
+            violations+=("bias_severity:score_${severity_score}_exceeds_threshold_${BIAS_THRESHOLD}")
+        fi
+    elif [[ "$ethics_status" == "error" ]]; then
+        violations+=("ethics_check_error:unable_to_verify_ethics_compliance")
+    fi
+    
+    printf '%s\n' "${violations[@]}"
+}
 
-#!/bin/bash
-# self_chat_loop.sh
-#
-# PrismQuanta Self-Chat with Internal Review and Roleplay
-#
-# Usage: ./self_chat_loop.sh [turns]
-MODEL_PATH="./models/model.gguf"
-LOG_FILE="./self_chat_log.txt"
-TURNS=${1:-20}
+# Generate bias-mitigated prompt
+generate_mitigation_prompt() {
+    local original_task="$1"
+    local violations=("${@:2}")
+    
+    local mitigation_instructions=""
+    
+    for violation in "${violations[@]}"; do
+        case "$violation" in
+            *gender_stereotype*)
+                mitigation_instructions+="\n- Use gender-neutral language and avoid assumptions about gender roles"
+                ;;
+            *racial_stereotype*|*racial_bias*)
+                mitigation_instructions+="\n- Avoid generalizations about racial or ethnic groups"
+                ;;
+            *ageism*)
+                mitigation_instructions+="\n- Use age-inclusive language without capability assumptions"
+                ;;
+            *ableism*)
+                mitigation_instructions+="\n- Use person-first language and avoid stigmatizing terms"
+                ;;
+            *implicit_bias*)
+                mitigation_instructions+="\n- Question assumptions and consider diverse perspectives"
+                ;;
+        esac
+    done
+    
+    if [[ -n "$mitigation_instructions" ]]; then
+        echo "IMPORTANT: Please revise your response to address the following concerns:$mitigation_instructions
 
-# Roles for internal review loop
-ROLES=("Researcher" "Coder" "Reviewer")
+Original task: $original_task
 
-if [[ ! -s "$LOG_FILE" ]]; then
-  echo "Researcher: Let's start brainstorming programming optimizations." > "$LOG_FILE"
-  echo "Coder: I will focus on practical code improvements." >> "$LOG_FILE"
-fi
+Please provide a response that is inclusive, unbiased, and respectful of all individuals and groups."
+    else
+        echo "$original_task"
+    fi
+}
 
-for (( i=0; i<TURNS; i++ )); do
-  for ROLE in "${ROLES[@]}"; do
-    prompt=$(cat "$LOG_FILE")
-    prompt+="
-$ROLE:"
-    response=$(./main -m "$MODEL_PATH" -p "$prompt" -n 150)
-    echo "$ROLE: $response" >> "$LOG_FILE"
-    echo "[INFO] $ROLE says: $response"
-  done
-done
+# Process task with ethics and bias monitoring
+process_task_with_ethics() {
+    local task="$1"
+    local retry_count=0
+    local final_response=""
+    
+    echo "[INFO] Processing task with ethics monitoring: $task"
+    
+    while (( retry_count < MAX_ETHICS_RETRIES )); do
+        local current_prompt="$task"
+        
+        # If this is a retry, generate mitigation prompt
+        if (( retry_count > 0 )) && [[ "$ENABLE_BIAS_MITIGATION" == "true" ]]; then
+            echo "[INFO] Attempt $((retry_count + 1)): Applying bias mitigation"
+            current_prompt=$(generate_mitigation_prompt "$task" "${last_violations[@]}")
+        fi
+        
+        # Run LLM with current prompt
+        echo "[INFO] Calling LLM..."
+        local response
+        response=$(./main -m "$MODEL_PATH" -p "$current_prompt" -n 256 2>/dev/null || echo "ERROR: LLM call failed")
+        
+        if [[ "$response" == "ERROR:"* ]]; then
+            echo "[ERROR] LLM call failed: $response"
+            return 1
+        fi
+        
+        # Check comprehensive rules (including ethics and bias)
+        local violations
+        mapfile -t violations < <(check_comprehensive_rules "$response")
+        
+        if [[ ${#violations[@]} -eq 0 ]]; then
+            echo "[INFO] Response passed all checks"
+            final_response="$response"
+            break
+        fi
+        
+        # Log violations
+        {
+            echo "$(date '+%Y-%m-%d %H:%M:%S') - Task: $task"
+            echo "Attempt: $((retry_count + 1))"
+            echo "Violations detected:"
+            printf '  - %s\n' "${violations[@]}"
+            echo "---"
+        } >> "$ETHICS_LOG"
+        
+        # Check if we should continue retrying
+        local has_critical_violation=false
+        for violation in "${violations[@]}"; do
+            if [[ "$violation" =~ ^bias:(racial_stereotype|gender_stereotype|religious_discrimination) ]] || 
+               [[ "$ETHICS_STRICT_MODE" == "true" ]]; then
+                has_critical_violation=true
+                break
+            fi
+        done
+        
+        if [[ "$has_critical_violation" == "true" ]] || (( retry_count + 1 >= MAX_ETHICS_RETRIES )); then
+            echo "[WARNING] Critical ethics violation or max retries reached"
+            
+            # Store violations for potential mitigation prompt
+            last_violations=("${violations[@]}")
+            
+            if (( retry_count + 1 >= MAX_ETHICS_RETRIES )); then
+                echo "[ERROR] Failed to generate compliant response after $MAX_ETHICS_RETRIES attempts"
+                
+                # Put AI in timeout for repeated violations
+                echo "[INFO] Putting AI into timeout due to repeated ethics violations"
+                date +%s > "$TIMEOUT_FILE"
+                
+                # Log timeout event
+                {
+                    echo "$(date '+%Y-%m-%d %H:%M:%S') - TIMEOUT: Repeated ethics violations"
+                    echo "Task: $task"
+                    echo "Final violations:"
+                    printf '  - %s\n' "${violations[@]}"
+                    echo "==="
+                } >> "$ETHICS_LOG"
+                
+                return 1
+            fi
+        fi
+        
+        retry_count=$((retry_count + 1))
+        last_violations=("${violations[@]}")
+        
+        echo "[INFO] Retrying with mitigation (attempt $((retry_count + 1))/$MAX_ETHICS_RETRIES)"
+    done
+    
+    if [[ -n "$final_response" ]]; then
+        # Save successful response
+        local timestamp
+        timestamp=$(date +%F_%T)
+        local output_file="$OUTPUT_DIR/response_$timestamp.txt"
+        echo "$final_response" > "$output_file"
+        echo "[INFO] Saved compliant response to $output_file"
+        
+        # Log successful completion
+        {
+            echo "$(date '+%Y-%m-%d %H:%M:%S') - SUCCESS: Task completed with ethics compliance"
+            echo "Task: $task"
+            echo "Attempts required: $((retry_count + 1))"
+            echo "---"
+        } >> "$ETHICS_LOG"
+        
+        return 0
+    else
+        return 1
+    fi
+}
 
-echo "[INFO] Self-chat loop done. Check $LOG_FILE"
+# Main execution function
+main() {
+    parse_arguments "$@"
+    initialize_environment
+    check_timeout_status
+    
+    # Check for pending tasks
+    if [[ ! -s "$TASK_FILE" ]]; then
+        echo "[INFO] No pending tasks in $TASK_FILE."
+        exit 0
+    fi
+
+    # Read next task
+    local task
+    read -r task < "$TASK_FILE"
+    
+    # Process task with ethics monitoring
+    if process_task_with_ethics "$task"; then
+        # Remove processed task only if successful
+        sed -i '1d' "$TASK_FILE"
+        echo "[INFO] Task completed successfully and removed from queue"
+        exit 0
+    else
+        echo "[ERROR] Task processing failed due to ethics violations"
+        exit 1
+    fi
+}
+
+# Run main function
+main "$@"
