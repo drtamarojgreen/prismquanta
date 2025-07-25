@@ -146,6 +146,12 @@ The `scripts/` directory contains a rich set of tools for managing the entire li
 
 ---
 
+## ⚖️ AI Ethics and Bias Mitigation
+
+PrismQuanta is committed to the responsible development and deployment of AI. We have implemented a comprehensive framework for mitigating bias and ensuring that our AI is fair, ethical, and safe for all users. For more information, please see our [Ethical Framework](docs/ethical_framework.md).
+
+---
+
 ## 🤝 Contributing
 
 Contributions are highly encouraged! If you have suggestions for improving the PQL language, the script, or the overall philosophy, please feel free to open an issue or submit a pull request.

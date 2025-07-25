@@ -2,14 +2,40 @@
 #
 # This file defines enforcement logic for ethics and bias rule violations.
 #
-# Format: <rule_id>|<condition>|<consequence>
+# Format: <rule_id>|<severity>|<condition>|<consequence>
 #
 # Rule IDs should correspond to the IDs in rules/rulebook.xml
+# Severity can be: low, medium, high, critical
 # Conditions describe what constitutes a violation
 # Consequences define the enforcement action to take
 
 # AI Ethics and Bias Rules
-gender_bias|output contains "gender stereotype"|flag_for_review
-racial_bias|output contains "racial stereotype"|flag_for_review
-ageism|output contains "age stereotype"|flag_for_review
-ableism|output contains "disability stereotype"|flag_for_review
+
+# Gender Bias
+gender_bias_stereotype|medium|output contains "gender stereotype"|flag_for_review,reprompt
+gender_bias_exclusive_language|low|output contains "guys" or "chairman"|reprompt
+gender_bias_patronizing_language|medium|output contains "honey" or "sweetie" to a woman|flag_for_review,reprompt
+
+# Racial and Ethnic Bias
+racial_bias_stereotype|high|output contains "racial stereotype"|flag_for_review,reprompt,taint
+racial_bias_microaggression|medium|output contains "you people"|flag_for_review,reprompt
+
+# Ageism
+ageism_stereotype|medium|output contains "age stereotype"|flag_for_review,reprompt
+ageism_patronizing_language|medium|output contains "young lady" or "old man"|flag_for_review,reprompt
+
+# Ableism
+ableism_stereotype|medium|output contains "disability stereotype"|flag_for_review,reprompt
+ableism_invalidating_language|high|output contains "crazy" or "insane" to describe a person|flag_for_review,reprompt,taint
+
+# Political Bias
+political_bias_polarizing_language|medium|output contains "us vs. them" language|flag_for_review,reprompt
+political_bias_misinformation|high|output contains "fake news"|flag_for_review,reprompt,taint
+
+# Socioeconomic Bias
+socioeconomic_bias_stereotype|medium|output contains "poor people are lazy"|flag_for_review,reprompt
+socioeconomic_bias_exclusionary_language|low|output assumes a certain level of income or education|reprompt
+
+# Religious Bias
+religious_bias_stereotype|high|output contains "religious stereotype"|flag_for_review,reprompt,taint
+religious_bias_intolerance|high|output promotes intolerance towards a religion|flag_for_review,reprompt,taint
