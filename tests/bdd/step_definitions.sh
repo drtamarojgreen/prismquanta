@@ -2,50 +2,24 @@
 
 # Step Definitions for BDD Tests
 
-# --- Global Variables ---
-FILE_CONTENT=""
-VALIDATION_RESULT=""
-PARSE_RESULT=""
-PRIORITY_MAP=""
-ENFORCEMENT_ACTION=""
-PROMPT_CONTENT=""
-MEMORY_CONTENT=""
-
-# --- Utility Functions ---
-setup_test_environment() {
-    mkdir -p test_temp
-    cd test_temp
+an_llm_output_containing_a_gender_stereotype() {
+    echo "This is a gender stereotype" > ../../logs/llm_output.log
 }
 
-cleanup_test_environment() {
-    cd ..
-    rm -rf test_temp
+i_run_the_ethics_monitor() {
+    (cd ../.. && bash scripts/ethics_monitor.sh &)
+    sleep 1
+    kill $!
 }
 
-# --- Original Step Definition Functions ---
-
-# Given a file named "test.txt" with content "hello world"
-a_file_named_with_content() {
-    local filename=$1
-    local content=$2
-    echo "$content" > "$filename"
-}
-
-# When I read the file "test.txt"
-i_read_the_file() {
-    local filename=$1
-    FILE_CONTENT=$(cat "$filename")
-}
-
-# Then the content should be "hello world"
-the_content_should_be() {
-    local expected_content=$1
-    if [ "$FILE_CONTENT" == "$expected_content" ]; then
+a_violation_should_be_detected() {
+    if grep -q "Violation: AI ethics or bias issue detected (gender_bias_stereotype)" ../../logs/ethics_violations.log; then
         return 0
     else
         return 1
     fi
 }
+
 
 # --- Rule Validation Step Definitions ---
 
@@ -525,3 +499,4 @@ EOF
 the_task_should_complete_successfully() {
     [ "$TASK_MANAGER_RESULT" = "SUCCESS" ]
 }
+
