@@ -21,32 +21,6 @@ else
     exit 1
 fi
 
-# --- Test Execution Functions ---
-
-# Function to execute a single step
-execute_step() {
-    local step_keyword=$1
-    local step_action=$2
-
-    echo -e "  ${YELLOW}${step_keyword}${NC} ${step_action}"
-
-    # Find the corresponding function in step_definitions.sh
-    local function_name=$(echo "$step_action" | sed 's/ /_/g' | tr -d '[:punct:]')
-
-    if type "$function_name" &>/dev/null; then
-        if "$function_name" "$@"; then
-            echo -e "    ${GREEN}✔ Passed${NC}"
-            ((PASS_COUNT++))
-        else
-            echo -e "    ${RED}✖ Failed${NC}"
-            ((FAIL_COUNT++))
-        fi
-    else
-        echo -e "    ${YELLOW}… Pending${NC}"
-        ((PENDING_COUNT++))
-    fi
-}
-
 # --- Main Test Runner Logic ---
 
 # Find and run all feature files
@@ -66,11 +40,20 @@ for feature_file in features/*.feature; do
 
         # Identify and execute steps
         if [[ "$line" =~ ^\s*(Given|When|Then|And|But) ]]; then
-            keyword=$(echo "$line" | awk '{print $1}')
-            action=$(echo "$line" | sed -E 's/^\s*(Given|When|Then|And|But)\s*//')
-            # Extract arguments from the action
-            args=$(echo "$action" | grep -o '".*"' | sed 's/"//g')
-            execute_step "$keyword" "$action" $args
+            # Super simple implementation, no arguments
+            func_name=$(echo "$line" | sed -E 's/^\s*(Given|When|Then|And|But)\s*//' | sed 's/ /_/g')
+            if type "$func_name" &>/dev/null; then
+                if "$func_name"; then
+                    echo -e "  ${GREEN}✔ $line${NC}"
+                    ((PASS_COUNT++))
+                else
+                    echo -e "  ${RED}✖ $line${NC}"
+                    ((FAIL_COUNT++))
+                fi
+            else
+                echo -e "  ${YELLOW}… $line${NC}"
+                ((PENDING_COUNT++))
+            fi
         fi
     done < "$feature_file"
 done
