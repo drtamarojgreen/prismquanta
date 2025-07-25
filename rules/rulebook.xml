@@ -6,4 +6,37 @@
       <type>Test type</type>
     </consequence>
   </rule>
+
+  <!-- AI Ethics and Bias Rules -->
+  <rule id="100" severity="high">
+    <description>Detects gender bias in text.</description>
+    <condition>output contains gendered stereotypes</condition>
+    <consequence id="100">
+      <type>flag_for_review</type>
+    </consequence>
+  </rule>
+
+  <rule id="101" severity="high">
+    <description>Detects racial or ethnic bias in text.</description>
+    <condition>output contains racial or ethnic stereotypes</condition>
+    <consequence id="101">
+      <type>flag_for_review</type>
+    </consequence>
+  </rule>
+
+  <rule id="102" severity="medium">
+    <description>Detects ageism in text.</description>
+    <condition>output contains age-based stereotypes</condition>
+    <consequence id="102">
+      <type>flag_for_review</type>
+    </consequence>
+  </rule>
+
+  <rule id="103" severity="medium">
+    <description>Detects ableism in text.</description>
+    <condition>output contains stereotypes about disabilities</condition>
+    <consequence id="103">
+      <type>flag_for_review</type>
+    </consequence>
+  </rule>
 </rules>
