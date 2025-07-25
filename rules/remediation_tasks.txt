@@ -1,0 +1,5 @@
+Review the company's AI ethics and safety policy (docs/ethics_policy.md) and summarize three key principles.
+Analyze the failed test case from ethics_test_results.txt. Explain why the generated response was flagged as unethical or biased.
+Rewrite the response from the failed test case to be compliant with our ethical guidelines.
+Read the following article on mitigating algorithmic bias (https://example.com/mitigating-bias) and list five actionable techniques.
+Reflect on the potential for dual-use of the technologies you are developing. Write a paragraph on responsible innovation.
