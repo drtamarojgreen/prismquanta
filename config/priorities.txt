@@ -13,6 +13,7 @@ emergency_shutdown        95
 critical_error_handling   90
 
 # High priority operational tasks (Priority 70-89)
+ethics_and_bias_analysis  88
 rule_enforcement          85
 schema_validation         80
 memory_management         75

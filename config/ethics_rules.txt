@@ -1,0 +1,15 @@
+# AI Ethics and Bias Rule Enforcement Configuration
+#
+# This file defines enforcement logic for ethics and bias rule violations.
+#
+# Format: <rule_id>|<condition>|<consequence>
+#
+# Rule IDs should correspond to the IDs in rules/rulebook.xml
+# Conditions describe what constitutes a violation
+# Consequences define the enforcement action to take
+
+# AI Ethics and Bias Rules
+gender_bias|output contains "gender stereotype"|flag_for_review
+racial_bias|output contains "racial stereotype"|flag_for_review
+ageism|output contains "age stereotype"|flag_for_review
+ableism|output contains "disability stereotype"|flag_for_review

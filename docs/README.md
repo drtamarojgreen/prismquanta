@@ -9,6 +9,7 @@
 - Establish **consequence logic** to redirect LLM behavior
 - Create a human-readable, symbolic command language: **PrismQuanta Language (PQL)**
 - Foster reflective response pipelines (review > revise > respond)
+- Promote ethical AI by actively identifying and mitigating bias. See [AI Ethics and Bias Mitigation](ethics.md) for more details.
 
 ---
 
