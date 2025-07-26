@@ -9,8 +9,6 @@ IFS=$'\n\t'
 source "config/environment.txt"
 
 # Configuration
-ETHICS_CONFIG="../config/ethics_rules.txt"
-BIAS_PATTERNS="../config/bias_patterns.txt"
 SEVERITY_THRESHOLD="medium"
 
 # Create bias patterns file if it doesn't exist

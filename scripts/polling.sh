@@ -7,23 +7,20 @@ IFS=$'\n\t'
 # Source the environment file to get configuration
 source "config/environment.txt"
 
-RULE_ENFORCER_SCRIPT="./rule_enforcer.sh"
-LLM_OUTPUT_FILE="../output/llm_output.txt" # Assuming this is where the LLM output is stored
-
 # Function to check for violations
 check_for_violations() {
-    if [ ! -f "$LLM_OUTPUT_FILE" ]; then
-        echo "LLM output file not found: $LLM_OUTPUT_FILE"
+    if [ ! -f "$POLLING_LLM_OUTPUT_FILE" ]; then
+        echo "LLM output file not found: $POLLING_LLM_OUTPUT_FILE"
         return
     fi
 
     local llm_output
-    llm_output=$(cat "$LLM_OUTPUT_FILE")
+    llm_output=$(cat "$POLLING_LLM_OUTPUT_FILE")
 
     while IFS='|' read -r rule_id condition consequence; do
         if [[ -n "$rule_id" && ! "$rule_id" =~ ^# ]]; then
             if echo "$llm_output" | grep -q "$condition"; then
-                echo "Violation detected: $rule_id" | tee -a "$LOG_FILE"
+                echo "Violation detected: $rule_id" | tee -a "$ETHICS_VIOLATIONS_LOG"
                 "$RULE_ENFORCER_SCRIPT" "$rule_id"
             fi
         fi

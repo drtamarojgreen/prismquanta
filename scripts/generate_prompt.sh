@@ -4,9 +4,6 @@
 # Source the environment file to get configuration
 source "config/environment.txt"
 
-# --- Configuration ---
-PQL_FILE="tasks.xml"
-
 # --- Helper Functions ---
 
 # Function to check for required dependencies

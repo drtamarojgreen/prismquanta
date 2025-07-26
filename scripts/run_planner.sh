@@ -4,21 +4,18 @@
 # Source the environment file to get configuration
 source "config/environment.txt"
 
-XML_RULES="ruleset.xml"
-LOGFILE="memory/run_log.txt"
-
-echo "[RUN] Starting planner loop..." >> "$LOGFILE"
+echo "[RUN] Starting planner loop..." >> "$RUN_LOG_FILE"
 
 while true; do
-    echo "[TASK] Strategizing..." >> "$LOGFILE"
+    echo "[TASK] Strategizing..." >> "$RUN_LOG_FILE"
     ./strategize_project.sh
 
-    echo "[TASK] Requirements gathering..." >> "$LOGFILE"
+    echo "[TASK] Requirements gathering..." >> "$RUN_LOG_FILE"
     ./define_requirements.sh
 
-    echo "[TASK] Planning code..." >> "$LOGFILE"
+    echo "[TASK] Planning code..." >> "$RUN_LOG_FILE"
     ./plan_code_tasks.sh
 
-    echo "[WAIT] Cooling off. Sleeping 30m..." >> "$LOGFILE"
+    echo "[WAIT] Cooling off. Sleeping 30m..." >> "$RUN_LOG_FILE"
     sleep 1800  # Use polling logic if C++ interface is ready
 done

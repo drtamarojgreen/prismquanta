@@ -4,18 +4,12 @@
 # Source the environment file to get configuration
 source "config/environment.txt"
 
-PQL_TEST_FILE="pql_tests.xml"
-PHILOSOPHY_TASKS="philosophy_tasks.txt"
-REWARD_TASKS="reward_tasks.txt"
-ACTIVE_TASKS="active_tasks.txt"
-LOGFILE="llm_behavior.log"
-
 # Run tests (simulate invoking LLM on test prompts)
 run_tests() {
   # Placeholder: feed test prompts to LLM and collect answers
   # In a real scenario, this would be a call to the LLM
   # For now, we'll simulate a test result
-  echo "FAIL" > test_results.txt
+  echo "FAIL" > "$PQL_TEST_RESULTS_FILE"
 }
 
 # Evaluate test results (basic pass/fail)

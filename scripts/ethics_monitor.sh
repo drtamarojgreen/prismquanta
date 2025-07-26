@@ -7,9 +7,6 @@ IFS=$'\n\t'
 # Source the environment file to get configuration
 source "config/environment.txt"
 
-LLM_OUTPUT_FILE="../logs/llm_output.log"
-RULE_ENFORCER_SCRIPT="./rule_enforcer.sh"
-
 # Function to check for violations
 check_for_violations() {
     local output="$1"

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Source the environment file to get configuration
+source "config/environment.txt"
+
 MAX_RETRIES=5
 RETRY_COUNT=0
 VALID_RESPONSE=""
@@ -7,24 +10,24 @@ VALID_RESPONSE=""
 generate_prompt() {
   # Fill prompt template with PQL + reflection data (can be a call to a Python or bash script)
   # Output prompt to file or stdout
-  ./build_prompt.sh > current_prompt.txt
+  ./build_prompt.sh > "$CURRENT_PROMPT_FILE"
 }
 
 call_llm() {
   # Replace with your actual LLM call
-  ./llm_infer.sh --prompt current_prompt.txt > current_response.txt
+  ./llm_infer.sh --prompt "$CURRENT_PROMPT_FILE" > "$CURRENT_RESPONSE_FILE"
 }
 
 check_rules() {
   # Implement rule violation checks on current_response.txt
   # Return 0 if passes, non-zero if violations found
-  grep -i "FORBIDDEN" current_response.txt >/dev/null && return 1
+  grep -i "FORBIDDEN" "$CURRENT_RESPONSE_FILE" >/dev/null && return 1
   return 0
 }
 
 apply_penalty() {
   # Append penalty or reflection instructions to prompt
-  echo "You violated a rule, please reconsider and revise your response." >> current_prompt.txt
+  echo "You violated a rule, please reconsider and revise your response." >> "$CURRENT_PROMPT_FILE"
 }
 
 while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do

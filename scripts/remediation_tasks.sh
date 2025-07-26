@@ -7,15 +7,8 @@ IFS=$'\n\t'
 # Source the environment file to get configuration
 source "config/environment.txt"
 
-INPUT="memory/requirements.md"
-RAW_OUTPUT="memory/task_list_raw.txt"
-FINAL_OUTPUT="memory/task_list_final.txt"
-REVISED_OUTPUT="memory/task_list_revised.txt"
-FLAGGED="memory/flagged_tasks.txt"
-ENGINE="./llm_infer.sh"
 PROMPT="Break requirements into modular dev tasks with priority labels:"
 REVISION_PROMPT="Revise tasks for clarity and rule compliance:"
-TMP="memory/task_tmp.txt"
 
 echo "[PLAN] 🧠 Starting reflective planning pipeline..."
 

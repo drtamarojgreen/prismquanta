@@ -17,14 +17,10 @@
 # Source the environment file to get configuration
 source "config/environment.txt"
 
-MODEL_PATH="./models/model.gguf"
-TASK_FILE="./tasks.txt"
-OUTPUT_DIR="./agent_output"
-TIMEOUT_FILE="./timeout.flag"
 TIMEOUT_DURATION=$((2 * 60 * 60))  # 2 hours in seconds
 
 # Create output dir if missing
-mkdir -p "$OUTPUT_DIR"
+mkdir -p "$AGENT_OUTPUT_DIR"
 
 # Check if AI is in timeout
 if [[ -f "$TIMEOUT_FILE" ]]; then

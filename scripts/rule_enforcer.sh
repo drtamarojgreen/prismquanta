@@ -10,9 +10,6 @@ source "config/environment.txt"
 VIOLATION="${1:-}"
 LLM_OUTPUT="${2:-}"
 
-PROMPT_DIR="../prompts"
-DEFAULT_TASK_FILE="$PROMPT_DIR/active_tasks.txt"
-
 # Function to safely handle file operations
 safe_file_op() {
     local operation="$1"

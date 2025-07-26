@@ -44,9 +44,9 @@ source "config/environment.txt"
 
 # Project-specific Metrics
 echo -e "\nProject-specific Metrics:"
-task_count=$(grep -c "<task>" "$RULES_FILE")
+task_count=$(grep -c "<task>" "$TASKS_XML_FILE")
 echo "Number of tasks: $task_count"
-rule_count=$(grep -c "<rule>" "$RULES_FILE")
+rule_count=$(grep -c "<rule>" "$RULESET_XML_FILE")
 echo "Number of rules: $rule_count"
 incident_count=$(wc -l < "$RULES_FILE")
 echo "Number of incidents in rules.txt: $incident_count"
