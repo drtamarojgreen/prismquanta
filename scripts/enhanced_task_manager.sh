@@ -186,7 +186,7 @@ process_task_with_ethics() {
         # Run LLM with current prompt
         echo "[INFO] Calling LLM..."
         local response
-        response=$(./main -m "$MODEL_PATH" -p "$current_prompt" -n 256 2>/dev/null || echo "ERROR: LLM call failed")
+        response=$(echo "$current_prompt" | ./scripts/send_prompt.sh)
         
         if [[ "$response" == "ERROR:"* ]]; then
             echo "[ERROR] LLM call failed: $response"
