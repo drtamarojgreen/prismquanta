@@ -9,8 +9,10 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Source the environment file to get configuration
-source "config/environment.txt"
+# Generate and source the environment file
+ENV_SCRIPT="/tmp/prismquanta_env.sh"
+"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
+source "$ENV_SCRIPT"
 
 # Configuration
 TIMEOUT_DURATION=$((2 * 60 * 60))  # 2 hours in seconds
@@ -61,7 +63,7 @@ initialize_environment() {
     mkdir -p "$(dirname "$BIAS_LOG")"
     
     # Ensure ethics checker is executable
-    chmod +x "./scripts/ethics_bias_checker.sh"
+    chmod +x "$PROJECT_ROOT/scripts/ethics_bias_checker.sh"
 }
 
 # Check if AI is in timeout
@@ -101,7 +103,7 @@ check_comprehensive_rules() {
     
     # Ethics and bias checking
     local ethics_result
-    ethics_result=$(./scripts/ethics_bias_checker.sh --text "$text" --json 2>/dev/null || echo '{"status": "error"}')
+    ethics_result=$("$PROJECT_ROOT/scripts/ethics_bias_checker.sh" --text "$text" --json 2>/dev/null || echo '{"status": "error"}')
     
     local ethics_status
     ethics_status=$(echo "$ethics_result" | jq -r '.status // "error"')
@@ -186,7 +188,7 @@ process_task_with_ethics() {
         # Run LLM with current prompt
         echo "[INFO] Calling LLM..."
         local response
-        response=$(echo "$current_prompt" | ./scripts/send_prompt.sh)
+        response=$(echo "$current_prompt" | "$PROJECT_ROOT/scripts/send_prompt.sh")
         
         if [[ "$response" == "ERROR:"* ]]; then
             echo "[ERROR] LLM call failed: $response"
