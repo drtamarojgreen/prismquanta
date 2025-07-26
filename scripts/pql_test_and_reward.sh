@@ -11,7 +11,7 @@ source "config/environment.txt"
 run_pql_tests() {
   echo "Running PQL compliance tests..."
   # Placeholder: feed PQL test prompts to LLM and collect answers.
-  ./llm_infer.sh --pql "$PQL_TEST_FILE" > "$PQL_TEST_RESULTS"
+  cat "$PQL_TESTS_XML_FILE" | ./scripts/send_prompt.sh > "$PQL_TEST_RESULTS_FILE"
 }
 
 # Evaluate PQL test results (basic pass/fail)
@@ -30,7 +30,7 @@ evaluate_pql_tests() {
 run_ethics_tests() {
   echo "Running Ethics and Bias tests..."
   # Placeholder: feed ethics test prompts to LLM and collect answers.
-  ./llm_infer.sh --pql "$ETHICS_TEST_FILE" > "$ETHICS_TEST_RESULTS"
+  cat "$ETHICS_AND_BIAS_TESTS_XML_FILE" | ./scripts/send_prompt.sh > "$ETHICS_TEST_RESULTS_FILE"
 }
 
 # Evaluate ethics test results
