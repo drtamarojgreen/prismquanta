@@ -4,9 +4,10 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-ETHICS_RULES_FILE="../config/ethics_rules.txt"
+# Source the environment file to get configuration
+source "config/environment.txt"
+
 RULE_ENFORCER_SCRIPT="./rule_enforcer.sh"
-LOG_FILE="../logs/ethics_violations.log"
 LLM_OUTPUT_FILE="../output/llm_output.txt" # Assuming this is where the LLM output is stored
 
 # Function to check for violations

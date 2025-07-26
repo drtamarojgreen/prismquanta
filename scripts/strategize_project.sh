@@ -1,6 +1,9 @@
 #!/bin/bash
 # strategize_project.sh - Converts goals into logical strategies
 
+# Source the environment file to get configuration
+source "config/environment.txt"
+
 INPUT="memory/project_goals.txt"
 OUTPUT="memory/strategy_plan.txt"
 

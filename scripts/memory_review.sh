@@ -1,6 +1,9 @@
 #!/bin/bash
 # memory_review.sh - LLM reflection loop before next task
 
+# Source the environment file to get configuration
+source "config/environment.txt"
+
 LOGFILE="memory/review_log.txt"
 PQL_FILE="memory/tasks.xml"
 OUTPUT_SUMMARY="memory/review_summary.txt"

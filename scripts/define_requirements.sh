@@ -1,6 +1,9 @@
 #!/bin/bash
 # define_requirements.sh - Expands strategies into clear, testable requirements
 
+# Source the environment file to get configuration
+source "config/environment.txt"
+
 INPUT="memory/strategy_plan.txt"
 OUTPUT="memory/requirements.md"
 

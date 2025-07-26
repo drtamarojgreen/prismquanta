@@ -4,6 +4,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+# Source the environment file to get configuration
+source "config/environment.txt"
+
 INPUT="memory/requirements.md"
 RAW_OUTPUT="memory/task_list_raw.txt"
 FINAL_OUTPUT="memory/task_list_final.txt"

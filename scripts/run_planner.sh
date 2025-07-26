@@ -1,6 +1,9 @@
 #!/bin/bash
 # run_planner.sh - Master control loop for PrismQuanta's thinking cycles
 
+# Source the environment file to get configuration
+source "config/environment.txt"
+
 XML_RULES="ruleset.xml"
 LOGFILE="memory/run_log.txt"
 

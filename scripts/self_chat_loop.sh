@@ -11,6 +11,9 @@
 # - models/model.gguf
 # - 'self_chat_log.txt' stores the ongoing conversation
 
+# Source the environment file to get configuration
+source "config/environment.txt"
+
 MODEL_PATH="./models/model.gguf"
 LOG_FILE="./self_chat_log.txt"
 TURNS=${1:-20}  # Default 20 turns

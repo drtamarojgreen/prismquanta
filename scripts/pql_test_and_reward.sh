@@ -2,6 +2,9 @@
 # pql_test_and_reward.sh - Rewards the LLM for passing PQL compliance tests
 # and checks for ethical and bias compliance.
 
+# Source the environment file to get configuration
+source "config/environment.txt"
+
 # --- Configuration ---
 # Core PQL testing
 PQL_TEST_FILE="pql_tests.xml"

@@ -4,13 +4,14 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+# Source the environment file to get configuration
+source "config/environment.txt"
+
 VIOLATION="${1:-}"
 LLM_OUTPUT="${2:-}"
 
 PROMPT_DIR="../prompts"
 DEFAULT_TASK_FILE="$PROMPT_DIR/active_tasks.txt"
-LOG_FILE="../logs/ethics_violations.log"
-ETHICS_RULES_FILE="../config/ethics_rules.txt"
 
 # Function to safely handle file operations
 safe_file_op() {

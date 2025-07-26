@@ -1,6 +1,9 @@
 #!/bin/bash
 # pql_test_and_consequence.sh
 
+# Source the environment file to get configuration
+source "config/environment.txt"
+
 PQL_TEST_FILE="pql_tests.xml"
 PHILOSOPHY_TASKS="philosophy_tasks.txt"
 REWARD_TASKS="reward_tasks.txt"

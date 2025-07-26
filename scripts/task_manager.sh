@@ -14,10 +14,12 @@
 # - 'agent_output/' directory to save results
 # - 'timeout.flag' to indicate AI is in timeout
 
+# Source the environment file to get configuration
+source "config/environment.txt"
+
 MODEL_PATH="./models/model.gguf"
 TASK_FILE="./tasks.txt"
 OUTPUT_DIR="./agent_output"
-RULES_FILE="./rules.txt"
 TIMEOUT_FILE="./timeout.flag"
 TIMEOUT_DURATION=$((2 * 60 * 60))  # 2 hours in seconds
 
