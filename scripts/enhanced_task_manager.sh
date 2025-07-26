@@ -9,14 +9,10 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+# Source the environment file to get configuration
+source "config/environment.txt"
+
 # Configuration
-MODEL_PATH="./models/model.gguf"
-TASK_FILE="./tasks.txt"
-OUTPUT_DIR="./agent_output"
-RULES_FILE="./rules.txt"
-TIMEOUT_FILE="./timeout.flag"
-ETHICS_LOG="../logs/ethics_violations.log"
-BIAS_LOG="../logs/bias_violations.log"
 TIMEOUT_DURATION=$((2 * 60 * 60))  # 2 hours in seconds
 
 # Ethics and bias configuration

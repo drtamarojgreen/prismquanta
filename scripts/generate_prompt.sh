@@ -1,8 +1,8 @@
 #!/bin/bash
 # generate_prompt.sh - Assembles a structured LLM prompt from a PQL task.
 
-# --- Configuration ---
-PQL_FILE="tasks.xml"
+# Source the environment file to get configuration
+source "config/environment.txt"
 
 # --- Helper Functions ---
 

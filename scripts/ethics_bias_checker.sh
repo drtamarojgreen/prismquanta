@@ -5,10 +5,10 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+# Source the environment file to get configuration
+source "config/environment.txt"
+
 # Configuration
-ETHICS_CONFIG="../config/ethics_rules.txt"
-BIAS_PATTERNS="../config/bias_patterns.txt"
-LOG_FILE="../logs/ethics_violations.log"
 SEVERITY_THRESHOLD="medium"
 
 # Create bias patterns file if it doesn't exist

@@ -2,22 +2,8 @@
 # pql_test_and_reward.sh - Rewards the LLM for passing PQL compliance tests
 # and checks for ethical and bias compliance.
 
-# --- Configuration ---
-# Core PQL testing
-PQL_TEST_FILE="pql_tests.xml"
-PQL_TEST_RESULTS="pql_test_results.txt"
-
-# Ethics and Bias testing
-ETHICS_TEST_FILE="ethics_and_bias_tests.xml"
-ETHICS_TEST_RESULTS="ethics_test_results.txt"
-
-# Task files
-REWARD_TASKS="reward_tasks.txt"
-REMEDIATION_TASKS="remediation_tasks.txt" # Tasks for retraining on ethics
-ACTIVE_TASKS="active_tasks.txt"
-
-# Logging
-LOGFILE="llm_behavior.log"
+# Source the environment file to get configuration
+source "config/environment.txt"
 
 # --- Functions ---
 

@@ -1,9 +1,8 @@
 #!/bin/bash
 # parse_pql.sh - Parses and validates the PQL task file.
 
-# --- Configuration ---
-PQL_FILE="tasks.xml"
-PQL_SCHEMA="pql.xsd"
+# Source the environment file to get configuration
+source "config/environment.txt"
 
 # --- Helper Functions ---
 

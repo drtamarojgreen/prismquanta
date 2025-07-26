@@ -14,29 +14,51 @@
 #include <map>
 #include <vector>
 #include <string> // For std::string
+#include <map>
 
 namespace fs = std::filesystem;
 
 // --- Configuration ---
 // All paths are relative to the project root directory where the executable is run.
 
-// Log file for this interface application.
-const std::string LOG_FILE = "logs/interface.log";
-// Default prompt file to use if no other is specified.
-// NOTE: The pipeline is designed to use dynamically generated prompts via `generate_prompt.sh`.
-const std::string PROMPT_FILE = "prompts/input_prompt.txt";
-// A marker file to indicate the system is in a timeout period after a failure. Placed in logs/ to keep the root clean.
-const std::string TIMEOUT_MARKER = "logs/.timeout";
-// The XML file containing behavioral rules for the LLM.
-// NOTE: The current load_rules() function reads plain text and must be updated to parse XML.
-const std::string RULES_FILE = "rules/rules.xml";
-// The file containing task priorities.
-// NOTE: The current priorities.txt is a roadmap; the load_priorities() function expects a 'task priority' format.
-const std::string PRIORITY_FILE = "priorities.txt";
-// The interval in seconds for the main polling loop.
-const int POLL_INTERVAL_SEC = 60;
-// The duration in seconds for the timeout period after a script failure.
-const int TIMEOUT_DURATION_SEC = 7200; // 2 hours
+// A map to hold the configuration values
+std::map<std::string, std::string> config;
+
+// Function to load configuration from a file
+void load_config(const std::string& filename) {
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open config file: " << filename << std::endl;
+        return;
+    }
+
+    std::string line;
+    while (std::getline(file, line)) {
+        // Skip comments and empty lines
+        if (line.empty() || line[0] == '#') {
+            continue;
+        }
+
+        // Find the position of the equals sign
+        size_t equals_pos = line.find('=');
+        if (equals_pos != std::string::npos) {
+            // Extract key and value
+            std::string key = line.substr(0, equals_pos);
+            std::string value = line.substr(equals_pos + 1);
+
+            // Trim leading/trailing whitespace from key and value
+            key.erase(0, key.find_first_not_of(" \t\n\r\f\v"));
+            key.erase(key.find_last_not_of(" \t\n\r\f\v") + 1);
+            value.erase(0, value.find_first_not_of(" \t\n\r\f\v"));
+            value.erase(value.find_last_not_of(" \t\n\r\f\v") + 1);
+
+            // Store in the config map
+            config[key] = value;
+        }
+    }
+
+    file.close();
+}
 
 // --- Utility Functions ---
 
@@ -161,6 +183,18 @@ void run_pipeline() {
 }
 
 int main() {
+    // Load the configuration from the environment file
+    load_config("config/environment.txt");
+
+    // Get the configuration values from the map
+    const std::string LOG_FILE = config["LOG_FILE"];
+    const std::string PROMPT_FILE = config["PROMPT_FILE"];
+    const std::string TIMEOUT_MARKER = config["TIMEOUT_MARKER"];
+    const std::string RULES_FILE = config["RULES_FILE"];
+    const std::string PRIORITY_FILE = config["PRIORITY_FILE"];
+    const int POLL_INTERVAL_SEC = std::stoi(config["POLL_INTERVAL_SEC"]);
+    const int TIMEOUT_DURATION_SEC = std::stoi(config["TIMEOUT_DURATION_SEC"]);
+
     std::cout << "PrismQuanta Task Manager Initialized.\n";
     write_log("Interface startup initiated.");
 

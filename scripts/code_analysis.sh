@@ -39,13 +39,16 @@ for file in $(find . -type f -not -path "./.git/*" -not -path "./scripts/code_an
     fi
 done
 
+# Source the environment file to get configuration
+source "config/environment.txt"
+
 # Project-specific Metrics
 echo -e "\nProject-specific Metrics:"
-task_count=$(grep -c "<task>" "rules/tasks.xml")
+task_count=$(grep -c "<task>" "$TASKS_XML_FILE")
 echo "Number of tasks: $task_count"
-rule_count=$(grep -c "<rule>" "rules/rulebook.xml")
+rule_count=$(grep -c "<rule>" "$RULESET_XML_FILE")
 echo "Number of rules: $rule_count"
-incident_count=$(wc -l < "config/rules.txt")
+incident_count=$(wc -l < "$RULES_FILE")
 echo "Number of incidents in rules.txt: $incident_count"
-prompt_count=$(find "prompts" -type f | wc -l)
+prompt_count=$(find "$PROMPT_FILE" -type f | wc -l)
 echo "Number of prompts: $prompt_count"
