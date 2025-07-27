@@ -1,8 +1,22 @@
 #!/bin/bash
 # parse_pql.sh - Parses and validates the PQL task file.
 
-# Source the environment file to get configuration
-source "config/environment.txt"
+set -euo pipefail
+IFS=$'\n\t'
+
+# Determine project root if not already set, making the script more portable.
+if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
+    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
+fi
+
+# Generate and source the environment file
+ENV_SCRIPT="/tmp/prismquanta_env_parse_pql.sh"
+"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
+source "$ENV_SCRIPT"
+
+# For compatibility with the script's original variable names
+PQL_FILE="$TASKS_XML_FILE"
+PQL_SCHEMA="$PQL_SCHEMA_FILE"
 
 # --- Helper Functions ---
 

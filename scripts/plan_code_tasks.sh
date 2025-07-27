@@ -4,8 +4,24 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Source the environment file to get configuration
-source "config/environment.txt"
+# Determine project root if not already set, making the script more portable.
+if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
+    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
+fi
+
+# Generate and source the environment file
+ENV_SCRIPT="/tmp/prismquanta_env_plan_code.sh"
+"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
+source "$ENV_SCRIPT"
+
+# Map environment variables to the script's expected variable names
+INPUT="$REQUIREMENTS_FILE"
+ENGINE="$LLM_INFER_SCRIPT"
+RAW_OUTPUT="$TASK_LIST_RAW_FILE"
+TMP="$TASK_TMP_FILE"
+FINAL_OUTPUT="$TASK_LIST_FINAL_FILE"
+FLAGGED="$FLAGGED_TASKS_FILE"
+REVISED_OUTPUT="$TASK_LIST_REVISED_FILE"
 
 PROMPT="Break requirements into modular dev tasks with priority labels:"
 REVISION_PROMPT="Revise tasks for clarity and rule compliance:"
