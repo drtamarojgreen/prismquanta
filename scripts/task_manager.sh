@@ -15,12 +15,22 @@
 # - 'timeout.flag' to indicate AI is in timeout
 
 # Source the environment file to get configuration
-source "config/environment.txt"
+set -euo pipefail
+IFS=$'\n\t'
 
+# Determine project root if not already set, making the script more portable.
+if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
+    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
+fi
+
+# Generate and source the environment file
+ENV_SCRIPT="/tmp/prismquanta_env_task.sh"
+"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
+source "$ENV_SCRIPT"
 TIMEOUT_DURATION=$((2 * 60 * 60))  # 2 hours in seconds
 
 # Create output dir if missing
-mkdir -p "$AGENT_OUTPUT_DIR"
+mkdir -p "$OUTPUT_DIR"
 
 # Check if AI is in timeout
 if [[ -f "$TIMEOUT_FILE" ]]; then
@@ -48,7 +58,7 @@ read -r TASK < "$TASK_FILE"
 echo "[INFO] Processing task: $TASK"
 
 # Run prompt with PrismQuanta LLM
-RESPONSE=$(./main -m "$MODEL_PATH" -p "$TASK" -n 256)
+RESPONSE=$("$LLAMACPP_PATH/llama-cli" -m "$MODEL_PATH" -p "$TASK" -n 256)
 
 # Function to check rules
 function check_rules {
@@ -67,13 +77,13 @@ if ! check_rules "$RESPONSE"; then
     echo "[INFO] Putting AI into timeout for 2 hours due to rule violation."
     date +%s > "$TIMEOUT_FILE"
     # Optionally log violation
-    echo "$(date): Violation detected on task '$TASK'" >> "$OUTPUT_DIR/violations.log"
+    echo "$(date): Violation detected on task '$TASK'" >> "$LOG_FILE"
     exit 1
 fi
 
 # Save output with timestamped filename
 timestamp=$(date +%F_%T)
-output_file="$OUTPUT_DIR/response_$timestamp.txt"
+output_file="$OUTPUT_DIR/response_legacy_$timestamp.txt"
 echo "$RESPONSE" > "$output_file"
 echo "[INFO] Saved response to $output_file"
 

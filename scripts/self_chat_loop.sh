@@ -12,8 +12,18 @@
 # - 'self_chat_log.txt' stores the ongoing conversation
 
 # Source the environment file to get configuration
-source "config/environment.txt"
+set -euo pipefail
+IFS=$'\n\t'
 
+# Determine project root if not already set, making the script more portable.
+if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
+    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
+fi
+
+# Generate and source the environment file
+ENV_SCRIPT="/tmp/prismquanta_env_chat.sh"
+"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
+source "$ENV_SCRIPT"
 TURNS=${1:-20}  # Default 20 turns
 
 # Initialize conversation if empty
@@ -27,7 +37,7 @@ for (( i=0; i<TURNS; i++ )); do
     prompt=$(cat "$SELF_CHAT_LOG_FILE")
     prompt+="
 Researcher:"
-    response=$(./main -m "$MODEL_PATH" -p "$prompt" -n 150)
+    response=$("$LLAMACPP_PATH/llama-cli" -m "$MODEL_PATH" -p "$prompt" -n 150)
     echo "Researcher: $response" >> "$SELF_CHAT_LOG_FILE"
     echo "[INFO] Researcher says: $response"
 
@@ -35,7 +45,7 @@ Researcher:"
     prompt=$(cat "$SELF_CHAT_LOG_FILE")
     prompt+="
 Coder:"
-    response=$(./main -m "$MODEL_PATH" -p "$prompt" -n 150)
+    response=$("$LLAMACPP_PATH/llama-cli" -m "$MODEL_PATH" -p "$prompt" -n 150)
     echo "Coder: $response" >> "$SELF_CHAT_LOG_FILE"
     echo "[INFO] Coder says: $response"
 done

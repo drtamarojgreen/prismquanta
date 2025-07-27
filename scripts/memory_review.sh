@@ -1,8 +1,24 @@
 #!/bin/bash
 # memory_review.sh - LLM reflection loop before next task
 
-# Source the environment file to get configuration
-source "config/environment.txt"
+set -euo pipefail
+IFS=$'\n\t'
+
+# Determine project root if not already set, making the script more portable.
+if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
+    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
+fi
+
+# Generate and source the environment file
+ENV_SCRIPT="/tmp/prismquanta_env_review.sh"
+"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
+source "$ENV_SCRIPT"
+
+# Check for required dependencies
+if ! command -v xmlstarlet &> /dev/null; then
+    echo "Error: xmlstarlet is not installed. Please install it to continue." >&2
+    exit 1
+fi
 
 echo "[REVIEW] Starting memory review at $(date)" >> "$REVIEW_LOG_FILE"
 
@@ -38,4 +54,4 @@ step3_reflect_breaches
 step4_review_logs
 step5_summarize
 
-echo "[REVIEW] Memory review complete at $(date)" >> "$LOGFILE"
+echo "[REVIEW] Memory review complete at $(date)" >> "$REVIEW_LOG_FILE"

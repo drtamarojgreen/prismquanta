@@ -4,8 +4,15 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Source the environment file to get configuration
-source "config/environment.txt"
+# Determine project root if not already set, making the script more portable.
+if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
+    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
+fi
+
+# Generate and source the environment file
+ENV_SCRIPT="/tmp/prismquanta_env_monitor.sh"
+"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
+source "$ENV_SCRIPT"
 
 # Function to check for violations
 check_for_violations() {
@@ -16,7 +23,7 @@ check_for_violations() {
         # For now, we'll just check if the output contains the condition string.
         if [[ "$output" == *"$condition"* ]]; then
             # Violation detected, call the rule enforcer
-            bash "$RULE_ENFORCER_SCRIPT" "$rule_id" "$output"
+            "$RULE_ENFORCER_SCRIPT" "$rule_id" "$output"
         fi
     done < <(tail -n +2 "$ETHICS_RULES_FILE") # Skip header line
 }

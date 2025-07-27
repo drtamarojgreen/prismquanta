@@ -1,8 +1,18 @@
 #!/bin/bash
 # generate_prompt.sh - Assembles a structured LLM prompt from a PQL task.
 
-# Source the environment file to get configuration
-source "config/environment.txt"
+set -euo pipefail
+IFS=$'\n\t'
+
+# Determine project root if not already set, making the script more portable.
+if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
+    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
+fi
+
+# Generate and source the environment file
+ENV_SCRIPT="/tmp/prismquanta_env_genprompt.sh"
+"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
+source "$ENV_SCRIPT"
 
 # --- Helper Functions ---
 
