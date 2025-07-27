@@ -9,6 +9,7 @@ IFS=$'\n\t'
 if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
     # The script is in tests/bdd, so root is two levels up
     PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." &>/dev/null && pwd)"
+    export PRISM_QUANTA_ROOT
 fi
 
 # Configuration

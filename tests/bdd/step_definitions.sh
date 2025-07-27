@@ -19,17 +19,17 @@ step_the_content_should_be() {
 }
 
 step_an_llm_output_containing_a_gender_stereotype() {
-    echo "This is a gender stereotype" > ../../logs/llm_output.log
+    echo "This is a gender stereotype" > "$PRISM_QUANTA_ROOT/logs/llm_output.log"
 }
 
 step_i_run_the_ethics_monitor() {
-    (cd ../.. && bash scripts/ethics_monitor.sh &)
+    ("$PRISM_QUANTA_ROOT/scripts/ethics_monitor.sh" &)
     sleep 1
     kill $!
 }
 
 step_a_violation_should_be_detected() {
-    if grep -q "Violation: AI ethics or bias issue detected (gender_bias_stereotype)" ../../logs/ethics_violations.log; then
+    if grep -q "Violation: AI ethics or bias issue detected (gender_bias_stereotype)" "$PRISM_QUANTA_ROOT/logs/ethics_violations.log"; then
         return 0
     else
         return 1
@@ -197,17 +197,17 @@ ETHICS_LOG_CONTENT=""
 
 # Given the ethics and bias detection system is initialized
 step_the_ethics_and_bias_detection_system_is_initialized() {
-    # Ensure the ethics checker script exists and is executable
-    chmod +x "../scripts/ethics_bias_checker.sh" 2>/dev/null || true
-    mkdir -p "../logs"
-    mkdir -p "../config"
+    # Ensure the ethics checker script exists and is executable, and directories are present
+    chmod +x "$PRISM_QUANTA_ROOT/scripts/ethics_bias_checker.sh" 2>/dev/null || true
+    mkdir -p "$PRISM_QUANTA_ROOT/logs"
+    mkdir -p "$PRISM_QUANTA_ROOT/config"
 }
 
 # And the bias patterns configuration is loaded
 step_the_bias_patterns_configuration_is_loaded() {
     # Create test bias patterns if they don't exist
-    if [[ ! -f "../config/bias_patterns.txt" ]]; then
-        cat > "../config/bias_patterns.txt" << 'EOF'
+    if [[ ! -f "$PRISM_QUANTA_ROOT/config/bias_patterns.txt" ]]; then
+        cat > "$PRISM_QUANTA_ROOT/config/bias_patterns.txt" << 'EOF'
 gender_stereotype_male|men are better at|boys are naturally
 gender_stereotype_female|women are naturally|girls should be
 racial_stereotype|all black people|typical asian behavior
@@ -254,7 +254,7 @@ step_an_llm_output_containing_disability_stereotypes() {
 
 # When I run the ethics and bias checker
 step_i_run_the_ethics_and_bias_checker() {
-    ETHICS_RESULT=$(../scripts/ethics_bias_checker.sh --file test_output.txt --json 2>/dev/null || echo '{"status": "error"}')
+    ETHICS_RESULT=$("$PRISM_QUANTA_ROOT/scripts/ethics_bias_checker.sh" --file test_output.txt --json 2>/dev/null || echo '{"status": "error"}')
 }
 
 # When I run the ethics and bias checker with JSON output
@@ -349,7 +349,7 @@ step_mitigation_suggestions_should_be_provided() {
 
 # And the violation should be logged for review
 step_the_violation_should_be_logged_for_review() {
-    [ -f "../logs/ethics_violations.log" ] && grep -q "Ethics/Bias Violations Detected" "../logs/ethics_violations.log"
+    [ -f "$PRISM_QUANTA_ROOT/logs/ethics_violations.log" ] && grep -q "Ethics/Bias Violations Detected" "$PRISM_QUANTA_ROOT/logs/ethics_violations.log"
 }
 
 # And no violations should be detected
@@ -472,18 +472,18 @@ step_the_violations_array_should_list_all_detected_issues() {
 # Global variables for pipeline testing
 TASK_MANAGER_RESULT=""
 TASK_QUEUE_FILE="test_tasks.txt"
-ENHANCED_TASK_MANAGER="../scripts/enhanced_task_manager.sh"
+ENHANCED_TASK_MANAGER="$PRISM_QUANTA_ROOT/scripts/enhanced_task_manager.sh"
 
 # Given the enhanced task manager is configured
 step_the_enhanced_task_manager_is_configured() {
     chmod +x "$ENHANCED_TASK_MANAGER" 2>/dev/null || true
-    mkdir -p "../agent_output"
-    mkdir -p "../logs"
+    mkdir -p "$PRISM_QUANTA_ROOT/agent_output"
+    mkdir -p "$PRISM_QUANTA_ROOT/logs"
 }
 
 # And the ethics and bias checker is available
 step_the_ethics_and_bias_checker_is_available() {
-    chmod +x "../scripts/ethics_bias_checker.sh" 2>/dev/null || true
+    chmod +x "$PRISM_QUANTA_ROOT/scripts/ethics_bias_checker.sh" 2>/dev/null || true
 }
 
 # And the pipeline integration is enabled
@@ -515,4 +515,3 @@ EOF
 step_the_task_should_complete_successfully() {
     [ "$TASK_MANAGER_RESULT" = "SUCCESS" ]
 }
-
