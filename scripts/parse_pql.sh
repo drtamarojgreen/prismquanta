@@ -4,29 +4,15 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Determine project root if not already set, making the script more portable.
-if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
-    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
-fi
+# Source utility functions
+source "$(dirname "$0")/utils.sh"
 
-# Generate and source the environment file
-ENV_SCRIPT="/tmp/prismquanta_env_parse_pql.sh"
-"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
-source "$ENV_SCRIPT"
+# Setup environment
+setup_env
 
 # For compatibility with the script's original variable names
 PQL_FILE="$TASKS_XML_FILE"
 PQL_SCHEMA="$PQL_SCHEMA_FILE"
-
-# --- Helper Functions ---
-
-# Function to check for required dependencies
-check_deps() {
-  if ! command -v xmlstarlet &> /dev/null; then
-    echo "Error: xmlstarlet is not installed. Please install it to continue." >&2
-    exit 1
-  fi
-}
 
 # --- Core Logic ---
 
@@ -39,9 +25,8 @@ list_tasks() {
 get_commands() {
   local task_id="$1"
   if [[ -z "$task_id" ]]; then
-    echo "Error: Task ID is required." >&2
+    log_error "Task ID is required."
     usage
-    exit 1
   fi
   xmlstarlet sel -t -m "/tasks/task[@id='$task_id']/commands/command" -v "." -n "$PQL_FILE"
 }
@@ -50,9 +35,8 @@ get_commands() {
 get_criteria() {
   local task_id="$1"
   if [[ -z "$task_id" ]]; then
-    echo "Error: Task ID is required." >&2
+    log_error "Task ID is required."
     usage
-    exit 1
   fi
   xmlstarlet sel -t -m "/tasks/task[@id='$task_id']/criteria/criterion" -v "." -n "$PQL_FILE"
 }
@@ -60,16 +44,14 @@ get_criteria() {
 # Validate the PQL file against its XSD schema
 validate_pql() {
   if [[ ! -f "$PQL_SCHEMA" ]]; then
-    echo "Error: PQL schema file not found at '$PQL_SCHEMA'" >&2
-    exit 1
+    log_error "PQL schema file not found at '$PQL_SCHEMA'"
   fi
-  echo "Validating $PQL_FILE against $PQL_SCHEMA..."
+  log_info "Validating $PQL_FILE against $PQL_SCHEMA..."
   # Use xmlstarlet to validate. The 'val' command returns non-zero on failure.
   if xmlstarlet val --err --xsd "$PQL_SCHEMA" "$PQL_FILE"; then
-    echo "$PQL_FILE is valid."
+    log_info "$PQL_FILE is valid."
   else
-    echo "Error: $PQL_FILE is invalid. Please check against the schema." >&2
-    exit 1
+    log_error "$PQL_FILE is invalid. Please check against the schema."
   fi
 }
 
@@ -81,16 +63,25 @@ usage() {
   echo "Commands:"
   echo "  validate        Validates $PQL_FILE against $PQL_SCHEMA"
   echo "  list            Lists all task IDs and descriptions"
+  echo "  list_by_status <status> Lists all task IDs and descriptions with a given status"
   echo "  commands <id>   Extracts commands for a specific task ID"
   echo "  criteria <id>   Extracts criteria for a specific task ID"
 }
 
+list_by_status() {
+    local status="$1"
+    if [[ -z "$status" ]]; then
+        log_error "Status is required."
+        usage
+    fi
+    xmlstarlet sel -t -m "/tasks/task[@status='$status']" -v "@id" -o ": " -v "description" -n "$PQL_FILE"
+}
+
 main() {
-  check_deps
+  check_deps "xmlstarlet"
 
   if [[ ! -f "$PQL_FILE" ]]; then
-    echo "Error: PQL file not found at '$PQL_FILE'" >&2
-    exit 1
+    log_error "PQL file not found at '$PQL_FILE'"
   fi
 
   local command="$1"
@@ -98,14 +89,14 @@ main() {
 
   case "$command" in
     list) list_tasks ;;
+    list_by_status) list_by_status "$@" ;;
     commands) get_commands "$@" ;;
     criteria) get_criteria "$@" ;;
     validate) validate_pql ;;
     ""|--help|-h) usage ;;
     *)
-      echo "Error: Unknown command '$command'" >&2
+      log_error "Unknown command '$command'"
       usage
-      exit 1
       ;;
   esac
 }

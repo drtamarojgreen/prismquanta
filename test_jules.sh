@@ -22,8 +22,8 @@ echo "Running ethics_monitor.sh..."
 echo "Running plan_code_tasks.sh..."
 ./scripts/plan_code_tasks.sh
 
-echo "Running remediation_tasks.sh..."
-./scripts/remediation_tasks.sh
+# The remediation_tasks.sh script has been removed as it was a duplicate of plan_code_tasks.sh
+# The functionality is tested via the plan_code_tasks.sh execution.
 
 echo "Running rule_enforcer.sh..."
 ./scripts/rule_enforcer.sh

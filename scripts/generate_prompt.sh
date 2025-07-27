@@ -4,25 +4,13 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Determine project root if not already set, making the script more portable.
-if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
-    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
-fi
+# Source utility functions
+source "$(dirname "$0")/utils.sh"
 
-# Generate and source the environment file
-ENV_SCRIPT="/tmp/prismquanta_env_genprompt.sh"
-"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
-source "$ENV_SCRIPT"
+# Setup environment
+setup_env
 
 # --- Helper Functions ---
-
-# Function to check for required dependencies
-check_deps() {
-  if ! command -v xmlstarlet &> /dev/null; then
-    echo "Error: xmlstarlet is not installed. Please install it to continue." >&2
-    exit 1
-  fi
-}
 
 usage() {
   echo "Usage: $0 <task_id>"
@@ -33,25 +21,23 @@ usage() {
 
 # --- Main Execution ---
 main() {
-  check_deps
+  check_deps "xmlstarlet"
 
   local task_id="$1"
   if [[ -z "$task_id" ]]; then
-    echo "Error: Task ID is required." >&2
+    log_error "Task ID is required."
     usage
   fi
 
   if [[ ! -f "$PQL_FILE" ]]; then
-    echo "Error: PQL file not found at '$PQL_FILE'" >&2
-    exit 1
+    log_error "PQL file not found at '$PQL_FILE'"
   fi
 
   # Check if a task with the given ID exists
   local task_exists
   task_exists=$(xmlstarlet sel -t -v "count(/tasks/task[@id='$task_id'])" "$PQL_FILE")
   if [[ "$task_exists" -eq 0 ]]; then
-    echo "Error: Task ID '$task_id' not found in $PQL_FILE." >&2
-    exit 1
+    log_error "Task ID '$task_id' not found in $PQL_FILE."
   fi
 
   # Read document content from stdin
@@ -62,15 +48,15 @@ main() {
     doc_content="" # Handle case where nothing is piped
   fi
 
-  # Extract data from PQL using xmlstarlet
+  # Extract data from PQL using parse_pql.sh
   local task_description
-  task_description=$(xmlstarlet sel -t -v "/tasks/task[@id='$task_id']/description" "$PQL_FILE")
-  
+  task_description=$("$PRISM_QUANTA_ROOT/scripts/parse_pql.sh" list | grep "^$task_id:" | cut -d' ' -f2-)
+
   local commands
-  commands=$(xmlstarlet sel -t -m "/tasks/task[@id='$task_id']/commands/command" -v . -n "$PQL_FILE" | awk '{print NR". "$0}')
+  commands=$("$PRISM_QUANTA_ROOT/scripts/parse_pql.sh" commands "$task_id" | awk '{print NR". "$0}')
 
   local criteria
-  criteria=$(xmlstarlet sel -t -m "/tasks/task[@id='$task_id']/criteria/criterion" -v . -n "$PQL_FILE" | sed 's/^/- /')
+  criteria=$("$PRISM_QUANTA_ROOT/scripts/parse_pql.sh" criteria "$task_id" | sed 's/^/- /')
 
   # Assemble the prompt using a HEREDOC for clarity
   cat << PROMPT

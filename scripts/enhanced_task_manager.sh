@@ -9,15 +9,11 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Determine project root if not already set, making the script more portable.
-if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
-    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
-fi
+# Source utility functions
+source "$(dirname "$0")/utils.sh"
 
-# Generate and source the environment file
-ENV_SCRIPT="/tmp/prismquanta_env.sh"
-"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
-source "$ENV_SCRIPT"
+# Setup environment
+setup_env
 
 # --- Utility Functions ---
 
@@ -26,8 +22,8 @@ log_timeout() {
     local reason="$1"
     local task_context="$2"
 
-    echo "[ERROR] $reason"
-    echo "[INFO] Putting AI into timeout."
+    log_error "$reason"
+    log_info "Putting AI into timeout."
     date +%s > "$TIMEOUT_FILE"
 
     # Log the timeout event with context
@@ -73,8 +69,7 @@ parse_arguments() {
                 exit 0
                 ;;
             *)
-                echo "Unknown option: $1" >&2
-                exit 1
+                log_error "Unknown option: $1"
                 ;;
         esac
     done
@@ -101,10 +96,10 @@ check_timeout_status() {
         elapsed=$(( now - timeout_start ))
 
         if (( elapsed < TIMEOUT_DURATION )); then
-            echo "[INFO] AI is in timeout. Wait $(( (TIMEOUT_DURATION - elapsed)/60 )) minutes."
+            log_info "AI is in timeout. Wait $(( (TIMEOUT_DURATION - elapsed)/60 )) minutes."
             exit 0
         else
-            echo "[INFO] Timeout expired. Resuming AI."
+            log_info "Timeout expired. Resuming AI."
             rm -f "$TIMEOUT_FILE"
         fi
     fi
@@ -198,31 +193,29 @@ process_task_with_ethics() {
     local retry_count=0
     local final_response=""
     
-    echo "[INFO] Processing task with ethics monitoring: $task"
+    log_info "Processing task with ethics monitoring: $task"
     
     while (( retry_count < MAX_ETHICS_RETRIES )); do
         local current_prompt="$task"
         
         # If this is a retry, generate mitigation prompt
         if (( retry_count > 0 )) && [[ "$ENABLE_BIAS_MITIGATION" == "true" ]]; then
-            echo "[INFO] Attempt $((retry_count + 1)): Applying bias mitigation"
+            log_info "Attempt $((retry_count + 1)): Applying bias mitigation"
             current_prompt=$(generate_mitigation_prompt "$task" "${last_violations[@]}")
         fi
         
         # Run LLM with current prompt
-        echo "[INFO] Calling LLM..."
+        log_info "Calling LLM..."
         local response
         response=$(echo "$current_prompt" | "$PROJECT_ROOT/scripts/send_prompt.sh")
 
         if [[ -z "$response" ]]; then
-            echo "[ERROR] LLM did not return a response."
-            # Log the failure and put the AI in timeout
             log_timeout "LLM response was empty or null." "$task"
             return 1
         fi
         
         if [[ "$response" == "ERROR:"* ]]; then
-            echo "[ERROR] LLM call failed: $response"
+            log_error "LLM call failed: $response"
             return 1
         fi
         
@@ -231,7 +224,7 @@ process_task_with_ethics() {
         mapfile -t violations < <(check_comprehensive_rules "$response")
         
         if [[ ${#violations[@]} -eq 0 ]]; then
-            echo "[INFO] Response passed all checks"
+            log_info "Response passed all checks"
             final_response="$response"
             break
         fi
@@ -256,13 +249,13 @@ process_task_with_ethics() {
         done
         
         if [[ "$has_critical_violation" == "true" ]] || (( retry_count + 1 >= MAX_ETHICS_RETRIES )); then
-            echo "[WARNING] Critical ethics violation or max retries reached"
+            log_warn "Critical ethics violation or max retries reached"
             
             # Store violations for potential mitigation prompt
             last_violations=("${violations[@]}")
             
             if (( retry_count + 1 >= MAX_ETHICS_RETRIES )); then
-                echo "[ERROR] Failed to generate compliant response after $MAX_ETHICS_RETRIES attempts"
+                log_error "Failed to generate compliant response after $MAX_ETHICS_RETRIES attempts"
                 
                 # Put AI in timeout for repeated violations
                 log_timeout "Repeated ethics violations after $MAX_ETHICS_RETRIES attempts." "$task"
@@ -274,7 +267,7 @@ process_task_with_ethics() {
         retry_count=$((retry_count + 1))
         last_violations=("${violations[@]}")
         
-        echo "[INFO] Retrying with mitigation (attempt $((retry_count + 1))/$MAX_ETHICS_RETRIES)"
+        log_info "Retrying with mitigation (attempt $((retry_count + 1))/$MAX_ETHICS_RETRIES)"
     done
     
     if [[ -n "$final_response" ]]; then
@@ -283,7 +276,7 @@ process_task_with_ethics() {
         timestamp=$(date +%F_%T)
         local output_file="$OUTPUT_DIR/response_$timestamp.txt"
         echo "$final_response" > "$output_file"
-        echo "[INFO] Saved compliant response to $output_file"
+        log_info "Saved compliant response to $output_file"
         
         # Log successful completion
         {
@@ -307,7 +300,7 @@ main() {
     
     # Check for pending tasks
     if [[ ! -s "$TASK_FILE" ]]; then
-        echo "[INFO] No pending tasks in $TASK_FILE."
+        log_info "No pending tasks in $TASK_FILE."
         exit 0
     fi
 
@@ -319,10 +312,10 @@ main() {
     if process_task_with_ethics "$task"; then
         # Remove processed task only if successful
         sed -i '1d' "$TASK_FILE"
-        echo "[INFO] Task completed successfully and removed from queue"
+        log_info "Task completed successfully and removed from queue"
         exit 0
     else
-        echo "[ERROR] Task processing failed due to ethics violations"
+        log_error "Task processing failed due to ethics violations"
         exit 1
     fi
 }
