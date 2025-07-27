@@ -1,1 +1,19 @@
-This file will contain development lessons.
+This incident highlighted several important development lessons:
+
+1.  **Environment Configuration:**
+    *   Storing configuration files in a centralized and easily accessible location is crucial. Moving `environment.txt` to the project root from a subdirectory simplified path management and reduced complexity in the scripts.
+    *   When scripts need to be run from different directories, it's important to have a robust way to determine the project root. The `PRISM_QUANTA_ROOT` environment variable, set by a dedicated `setup_environment.sh` script, provides a reliable way to do this.
+
+2.  **Script Portability:**
+    *   Scripts should not rely on the current working directory to locate files. Using absolute paths based on a project root variable makes scripts more portable and less prone to errors.
+    *   Hardcoding relative paths like `../` or `./` can lead to issues when scripts are run from unexpected locations.
+
+3.  **Dependency Management:**
+    *   The `code_analysis.sh` script failed because the `bc` command was not installed. This highlights the importance of identifying and documenting all script dependencies.
+
+4.  **Error Handling and Debugging:**
+    *   The `set -u` option in the scripts was helpful in identifying unbound variables, but it also made the scripts more brittle. It's important to find a balance between strict error checking and script robustness.
+    *   Adding debug statements (e.g., `echo` commands to print variable values) was a useful technique for identifying issues with variable expansion and pathing.
+
+5.  **Testing:**
+    *   Creating a dedicated test script (`test_jules.sh`) was a good way to verify the fixes and ensure that the scripts work as expected. This is a good practice to follow for any future development.
