@@ -4,7 +4,12 @@
 
 CONFIG_FILE="$1"
 OUTPUT_FILE="$2"
-PROJECT_ROOT="$PRISM_QUANTA_ROOT"
+PROJECT_ROOT="$3"
+
+if [[ -z "$PROJECT_ROOT" ]]; then
+    echo "Error: Project root (argument 3) is required." >&2
+    exit 1
+fi
 
 # Clear the output file
 > "$OUTPUT_FILE"
