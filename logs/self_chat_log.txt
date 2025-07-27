@@ -1,0 +1,26 @@
+Researcher: Let's start brainstorming about programming optimizations.
+Coder: Great, I will focus on practical code improvements.
+Researcher:
+/app/scripts/polling.sh: line 15: /app/llamacpp/bin/llama-cli: No such file or directory
+Coder:
+/app/scripts/polling.sh: line 15: /app/llamacpp/bin/llama-cli: No such file or directory
+Researcher:
+/app/scripts/polling.sh: line 15: /app/llamacpp/bin/llama-cli: No such file or directory
+Coder:
+/app/scripts/polling.sh: line 15: /app/llamacpp/bin/llama-cli: No such file or directory
+Researcher:
+/app/scripts/polling.sh: line 15: /app/./main: Permission denied
+Coder:
+/app/scripts/polling.sh: line 15: /app/./main: Permission denied
+Researcher:
+/app/scripts/polling.sh: line 15: /app/./main: Permission denied
+Coder:
+/app/scripts/polling.sh: line 15: /app/./main: Permission denied
+Researcher:
+This is a dummy main file.
+Coder:
+This is a dummy main file.
+Researcher:
+This is a dummy main file.
+Coder:
+This is a dummy main file.

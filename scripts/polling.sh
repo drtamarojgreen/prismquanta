@@ -4,11 +4,41 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Source utility functions
-source "$(dirname "$0")/utils.sh"
+# Determine project root if not already set, making the script more portable.
+if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
+    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
+fi
 
-# Setup environment
-setup_env
+# Generate and source the environment file
+ENV_SCRIPT="/tmp/prismquanta_env_polling.sh"
+"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
+source "$ENV_SCRIPT"
+
+# Executes a command in the background and shows a "thinking" message
+# while waiting for it to complete.
+#
+# Usage: ./polling.sh <command>
+#
+
+COMMAND_TO_RUN="$@"
+OUTPUT_FILE=$(mktemp)
+PID_FILE=$(mktemp)
+
+# Run the command in the background
+$COMMAND_TO_RUN > "$OUTPUT_FILE" 2>&1 &
+echo $! > "$PID_FILE"
+
+PID=$(cat "$PID_FILE")
+
+while ps -p $PID > /dev/null; do
+    echo -n "."
+    sleep 1
+done
+
+echo
+cat "$OUTPUT_FILE"
+rm "$OUTPUT_FILE"
+rm "$PID_FILE"
 
 # Function to check for violations
 check_for_violations() {
