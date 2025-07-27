@@ -19,6 +19,25 @@ ENV_SCRIPT="/tmp/prismquanta_env.sh"
 "$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
 source "$ENV_SCRIPT"
 
+# --- Utility Functions ---
+
+# Logs a timeout event and creates a timeout file.
+log_timeout() {
+    local reason="$1"
+    local task_context="$2"
+
+    echo "[ERROR] $reason"
+    echo "[INFO] Putting AI into timeout."
+    date +%s > "$TIMEOUT_FILE"
+
+    # Log the timeout event with context
+    {
+        echo "$(date '+%Y-%m-%d %H:%M:%S') - TIMEOUT: $reason"
+        echo "Task Context: $task_context"
+        echo "==="
+    } >> "$ETHICS_LOG"
+}
+
 # Configuration
 TIMEOUT_DURATION=$((2 * 60 * 60))  # 2 hours in seconds
 
@@ -194,6 +213,13 @@ process_task_with_ethics() {
         echo "[INFO] Calling LLM..."
         local response
         response=$(echo "$current_prompt" | "$PROJECT_ROOT/scripts/send_prompt.sh")
+
+        if [[ -z "$response" ]]; then
+            echo "[ERROR] LLM did not return a response."
+            # Log the failure and put the AI in timeout
+            log_timeout "LLM response was empty or null." "$task"
+            return 1
+        fi
         
         if [[ "$response" == "ERROR:"* ]]; then
             echo "[ERROR] LLM call failed: $response"
@@ -239,17 +265,7 @@ process_task_with_ethics() {
                 echo "[ERROR] Failed to generate compliant response after $MAX_ETHICS_RETRIES attempts"
                 
                 # Put AI in timeout for repeated violations
-                echo "[INFO] Putting AI into timeout due to repeated ethics violations"
-                date +%s > "$TIMEOUT_FILE"
-                
-                # Log timeout event
-                {
-                    echo "$(date '+%Y-%m-%d %H:%M:%S') - TIMEOUT: Repeated ethics violations"
-                    echo "Task: $task"
-                    echo "Final violations:"
-                    printf '  - %s\n' "${violations[@]}"
-                    echo "==="
-                } >> "$ETHICS_LOG"
+                log_timeout "Repeated ethics violations after $MAX_ETHICS_RETRIES attempts." "$task"
                 
                 return 1
             fi

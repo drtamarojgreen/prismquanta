@@ -1,11 +1,29 @@
 #!/bin/bash
-# plan_code_tasks.sh – Multi-stage reflective planner for PrismQuanta
+# remediation_tasks.sh – NOTE: This script appears to be a copy of plan_code_tasks.sh.
+# It has been updated to use the standard environment loading, but its core logic
+# seems unrelated to its filename.
 
 set -euo pipefail
 IFS=$'\n\t'
 
-# Source the environment file to get configuration
-source "config/environment.txt"
+# Determine project root if not already set, making the script more portable.
+if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
+    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
+fi
+
+# Generate and source the environment file
+ENV_SCRIPT="/tmp/prismquanta_env_remediation.sh"
+"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
+source "$ENV_SCRIPT"
+
+# These variables are assumed based on the logic of the original script
+INPUT="$REQUIREMENTS_FILE"
+ENGINE="$LLM_INFER_SCRIPT"
+RAW_OUTPUT="$TASK_LIST_RAW_FILE"
+TMP="$TASK_TMP_FILE"
+FINAL_OUTPUT="$TASK_LIST_FINAL_FILE"
+FLAGGED="$FLAGGED_TASKS_FILE"
+REVISED_OUTPUT="$TASK_LIST_REVISED_FILE"
 
 PROMPT="Break requirements into modular dev tasks with priority labels:"
 REVISION_PROMPT="Revise tasks for clarity and rule compliance:"
