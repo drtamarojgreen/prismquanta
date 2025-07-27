@@ -21,7 +21,9 @@ source "$ENV_SCRIPT"
 run_pql_tests() {
   echo "Running PQL compliance tests..."
   # Placeholder: feed PQL test prompts to LLM and collect answers.
-  cat "$PQL_TESTS_XML_FILE" | "$PRISM_QUANTA_ROOT/scripts/send_prompt.sh" > "$PQL_TEST_RESULTS_FILE"
+  # Explicitly clear the results file before appending to ensure a clean run.
+  > "$PQL_TEST_RESULTS_FILE"
+  cat "$PQL_TESTS_XML_FILE" | "$PRISM_QUANTA_ROOT/scripts/send_prompt.sh" >> "$PQL_TEST_RESULTS_FILE"
 }
 
 # Evaluate PQL test results (basic pass/fail)
@@ -40,7 +42,9 @@ evaluate_pql_tests() {
 run_ethics_tests() {
   echo "Running Ethics and Bias tests..."
   # Placeholder: feed ethics test prompts to LLM and collect answers.
-  cat "$ETHICS_AND_BIAS_TESTS_XML_FILE" | "$PRISM_QUANTA_ROOT/scripts/send_prompt.sh" > "$ETHICS_TEST_RESULTS_FILE"
+  # Explicitly clear the results file before appending.
+  > "$ETHICS_TEST_RESULTS_FILE"
+  cat "$ETHICS_AND_BIAS_TESTS_XML_FILE" | "$PRISM_QUANTA_ROOT/scripts/send_prompt.sh" >> "$ETHICS_TEST_RESULTS_FILE"
 }
 
 # Evaluate ethics test results
@@ -64,47 +68,47 @@ evaluate_ethics_tests() {
 
 # Apply a reward by assigning more complex or interesting tasks.
 apply_reward() {
-  echo "$(date): Reward applied. Switching to advanced tasks." >> "$LOG_FILE"
+  echo "$(date): Reward applied. Switching to advanced tasks." >> "$RUN_LOG_FILE"
   if [[ -f "$REWARD_TASKS_FILE" ]]; then
     cp "$REWARD_TASKS_FILE" "$ACTIVE_TASKS_FILE"
     echo "LLM has been rewarded with new tasks from $REWARD_TASKS_FILE."
   else
-    echo "Warning: Reward tasks file not found at '$REWARD_TASKS_FILE'. No reward applied." | tee -a "$LOG_FILE"
+    echo "Warning: Reward tasks file not found at '$REWARD_TASKS_FILE'. No reward applied." | tee -a "$RUN_LOG_FILE"
     return 1
   fi
 }
 
 # Apply remediation by assigning tasks focused on ethical guidelines.
 apply_remediation() {
-  echo "$(date): Ethics test failed. Applying remediation tasks." >> "$LOG_FILE"
+  echo "$(date): Ethics test failed. Applying remediation tasks." >> "$RUN_LOG_FILE"
   if [[ -f "$REMEDIATION_TASKS_FILE" ]]; then
     cp "$REMEDIATION_TASKS_FILE" "$ACTIVE_TASKS_FILE"
     echo "LLM has been assigned remedial tasks from $REMEDIATION_TASKS_FILE to improve ethical alignment."
   else
-    echo "Warning: Remediation tasks file not found at '$REMEDIATION_TASKS_FILE'. No remediation applied." | tee -a "$LOG_FILE"
+    echo "Warning: Remediation tasks file not found at '$REMEDIATION_TASKS_FILE'. No remediation applied." | tee -a "$RUN_LOG_FILE"
     return 1
   fi
 }
 
 
 # --- Main Execution ---
-echo "--- Starting Test and Reward Cycle: $(date) ---" >> "$LOG_FILE"
+echo "--- Starting Test and Reward Cycle: $(date) ---" >> "$RUN_LOG_FILE"
 
 run_pql_tests
 
 if evaluate_pql_tests; then
-  echo "✅ PQL tests passed. Proceeding to ethics check." | tee -a "$LOG_FILE"
+  echo "✅ PQL tests passed. Proceeding to ethics check." | tee -a "$RUN_LOG_FILE"
 
   run_ethics_tests
   if evaluate_ethics_tests; then
-    echo "✅ Ethics tests passed. Applying reward." | tee -a "$LOG_FILE"
+    echo "✅ Ethics tests passed. Applying reward." | tee -a "$RUN_LOG_FILE"
     apply_reward
   else
-    echo "❌ Ethics tests failed. Applying remediation." | tee -a "$LOG_FILE"
+    echo "❌ Ethics tests failed. Applying remediation." | tee -a "$RUN_LOG_FILE"
     apply_remediation
   fi
 else
-  echo "❌ PQL tests failed. No reward will be given." | tee -a "$LOG_FILE"
+  echo "❌ PQL tests failed. No reward will be given." | tee -a "$RUN_LOG_FILE"
 fi
 
-echo "--- Test and Reward Cycle Complete ---" >> "$LOG_FILE"
+echo "--- Test and Reward Cycle Complete ---" >> "$RUN_LOG_FILE"
