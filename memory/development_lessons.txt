@@ -27,3 +27,16 @@ A demonstration script (test_gemini.sh) was implemented with an overly aggressiv
 
 Remediation:
 The cleanup logic was refactored to be highly specific. Instead of deleting directories, the script now maintains a list of the exact temporary files and file patterns (e.g., response_*.txt) it generates. The cleanup function iterates through this list, removing only the specified items. This surgical approach ensures that the script's cleanup process is non-destructive to the project's integrity and only affects files created during its own execution. This prevents data loss and makes the automation safer and more reliable.
+
+[LESSON LEARNED]
+Date: 2025-07-26 21:38:00
+Topic: Unintended Modification of Core Files During Testing
+
+Occurrence:
+During troubleshooting of an infinite loop in `enhanced_task_manager.sh`, a mock version of `send_prompt.sh` was created to isolate the issue. This mock file was intended for temporary use during testing but was almost submitted to the main repository. This would have replaced a critical core script with a non-functional mock, severely impacting the application.
+
+Remediation:
+The incident was caught before submission, and the original `send_prompt.sh` was restored. To prevent this in the future, the following mitigation steps will be taken:
+1.  **Use of Test-Specific Mocking:** When a mock is required for a test, it should be created with a unique name (e.g., `send_prompt.mock.sh`) and placed in a dedicated test directory. The test script should then be explicitly configured to use this mock, for example by temporarily setting an environment variable to point to the mock script.
+2.  **Automated Verification:** Before submitting, a pre-commit hook or a CI/CD pipeline step could be implemented to check for any modifications to critical core scripts. This would act as a safety net to prevent accidental changes from being merged.
+3.  **Clearer Communication:** When using mock scripts or other temporary test setups, it is crucial to clearly communicate the purpose and intended lifespan of these files. This will help prevent misunderstandings and ensure that temporary files are not mistaken for permanent changes.
