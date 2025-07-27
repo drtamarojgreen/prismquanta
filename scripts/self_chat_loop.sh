@@ -37,7 +37,7 @@ for (( i=0; i<TURNS; i++ )); do
     prompt=$(cat "$SELF_CHAT_LOG_FILE")
     prompt+="
 Researcher:"
-    response=$("$LLAMACPP_PATH/llama-cli" -m "$MODEL_PATH" -p "$prompt" -n 150)
+    response=$("$PRISM_QUANTA_ROOT/scripts/polling.sh" "$LLAMACPP_PATH/main" -m "$MODEL_PATH" -p "$prompt" -n 150)
     echo "Researcher: $response" >> "$SELF_CHAT_LOG_FILE"
     echo "[INFO] Researcher says: $response"
 
@@ -45,7 +45,7 @@ Researcher:"
     prompt=$(cat "$SELF_CHAT_LOG_FILE")
     prompt+="
 Coder:"
-    response=$("$LLAMACPP_PATH/llama-cli" -m "$MODEL_PATH" -p "$prompt" -n 150)
+    response=$("$PRISM_QUANTA_ROOT/scripts/polling.sh" "$LLAMACPP_PATH/main" -m "$MODEL_PATH" -p "$prompt" -n 150)
     echo "Coder: $response" >> "$SELF_CHAT_LOG_FILE"
     echo "[INFO] Coder says: $response"
 done

@@ -1,7 +1,7 @@
 # --- Configuration ---
 # All paths are relative to the project root directory where the executable is run.
 
-LLAMACPP_PATH = llamacpp/bin
+LLAMACPP_PATH = .
 PROJECT_ROOT = .
 LOG_FILE = logs/interface.log
 PROMPT_FILE = prompts/input_prompt.txt
