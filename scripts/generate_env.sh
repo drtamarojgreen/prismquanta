@@ -21,5 +21,13 @@ while IFS='=' read -r key value; do
     esac
     key=$(echo "$key" | tr -d ' ' | tr -d '"')
     value=$(echo "$value" | tr -d ' ' | tr -d '"')
-    echo "export $key=\"$PROJECT_ROOT/$value\"" >> "$OUTPUT_FILE"
+
+    # Handle the special case for PROJECT_ROOT itself
+    if [[ "$key" == "PROJECT_ROOT" && "$value" == "." ]]; then
+        echo "export PROJECT_ROOT=\"$PROJECT_ROOT\"" >> "$OUTPUT_FILE"
+    else
+        # Remove leading './' from value if it exists, as it's redundant
+        value="${value#./}"
+        echo "export $key=\"$PROJECT_ROOT/$value\"" >> "$OUTPUT_FILE"
+    fi
 done < "$CONFIG_FILE"

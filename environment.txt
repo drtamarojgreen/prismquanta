@@ -1,7 +1,7 @@
 # --- Configuration ---
 # All paths are relative to the project root directory where the executable is run.
 
-LLAMACPP_PATH = ./llamacpp/bin
+LLAMACPP_PATH = llamacpp/bin
 PROJECT_ROOT = .
 LOG_FILE = logs/interface.log
 PROMPT_FILE = prompts/input_prompt.txt
@@ -13,10 +13,10 @@ POLL_INTERVAL_SEC = 60
 TIMEOUT_DURATION_SEC = 7200
 STRATEGY_PLAN_FILE = memory/strategy_plan.txt
 REQUIREMENTS_FILE = memory/requirements.md
-MODEL_PATH = ./models/model.gguf
-TASK_FILE = ./tasks.txt
-OUTPUT_DIR = ./agent_output
-TIMEOUT_FILE = ./timeout.flag
+MODEL_PATH = models/model.gguf
+TASK_FILE = tasks.txt
+OUTPUT_DIR = agent_output
+TIMEOUT_FILE = timeout.flag
 ETHICS_LOG = logs/ethics_violations.log
 BIAS_LOG = logs/bias_violations.log
 ETHICS_RULES_FILE = rules/ethics_rules.txt
@@ -32,7 +32,7 @@ TASK_LIST_RAW_FILE = memory/task_list_raw.txt
 TASK_LIST_FINAL_FILE = memory/task_list_final.txt
 TASK_LIST_REVISED_FILE = memory/task_list_revised.txt
 FLAGGED_TASKS_FILE = memory/flagged_tasks.txt
-LLM_INFER_SCRIPT = ./llm_infer.sh
+LLM_INFER_SCRIPT = llm_infer.sh
 TASK_TMP_FILE = memory/task_tmp.txt
 POLLING_LLM_OUTPUT_FILE = output/llm_output.txt
 PQL_TESTS_XML_FILE = rules/pql_tests.xml

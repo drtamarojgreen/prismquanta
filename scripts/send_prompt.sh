@@ -1,8 +1,7 @@
 #!/bin/bash
 # send_prompt.sh - Sends a prompt to the LLM.
-
-# Source the environment file to get configuration
-source "config/environment.txt"
+# This script relies on environment variables (LLAMACPP_PATH, MODEL_PATH)
+# being set and exported by the calling script.
 
 # Check for prompt content from stdin
 if ! tty -s; then
