@@ -1,3 +1,3 @@
 #!/bin/bash
-cd tests/bdd
-./test-runner.sh
+
+bats tests/bdd/features
