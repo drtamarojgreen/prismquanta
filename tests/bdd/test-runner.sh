@@ -27,31 +27,47 @@ fi
 for feature_file in features/*.feature; do
     echo "Feature: $(grep "Feature:" "$feature_file" | cut -d: -f2-)"
 
-    # Read the feature file line by line
-    while IFS= read -r line; do
-        # Skip empty lines and comments
-        [[ -z "$line" || "$line" =~ ^# ]] && continue
+    # Read the feature file line by line, skipping comments and empty lines
+    current_scenario=""
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        # Trim leading/trailing whitespace
+        line=$(echo "$line" | sed 's/^\s*//;s/\s*$//')
 
-        # Identify Scenario
-        if [[ "$line" =~ ^\s*Scenario: ]]; then
-            echo -e "\n  Scenario: $(echo "$line" | sed 's/^\s*Scenario:\s*//')"
+        if [[ -z "$line" || "$line" =~ ^# ]]; then
             continue
         fi
 
-        # Identify and execute steps
-        if [[ "$line" =~ ^\s*(Given|When|Then|And|But) ]]; then
-            # Super simple implementation, no arguments
-            func_name=$(echo "$line" | sed -E 's/^\s*(Given|When|Then|And|But)\s*//' | sed 's/ /_/g')
-            if type "$func_name" &>/dev/null; then
-                if "$func_name"; then
-                    echo -e "  ${GREEN}✔ $line${NC}"
+        # Identify Scenario
+        if [[ "$line" =~ ^Scenario: ]]; then
+            current_scenario=$(echo "$line" | cut -d: -f2- | sed 's/^\s*//')
+            echo -e "\n  Scenario: $current_scenario"
+            continue
+        fi
+
+        # Identify and execute steps within a scenario
+        if [[ -n "$current_scenario" ]] && [[ "$line" =~ ^(Given|When|Then|And|But) ]]; then
+            step_text="$line"
+            # Simple argument parsing (quotes)
+            step_action=$(echo "$step_text" | cut -d' ' -f2-)
+            step_func="step_$(echo "$step_text" | sed -E 's/^\s*(Given|When|Then|And|But)\s*//' | sed -E 's/\s*".*?"//g' | tr ' ' '_')"
+
+            # Extract arguments from the step text
+            args=()
+            while IFS= read -r -d '' arg; do
+                args+=("$arg")
+            done < <(echo "$step_text" | grep -o '".*?"' | tr -d '"' | tr '\n' '\0')
+
+            if type "$step_func" &>/dev/null; then
+                # Execute the step function with its arguments
+                if "$step_func" "${args[@]}"; then
+                    echo -e "    ${GREEN}✔ $step_text${NC}"
                     ((PASS_COUNT++))
                 else
-                    echo -e "  ${RED}✖ $line${NC}"
+                    echo -e "    ${RED}✖ $step_text${NC}"
                     ((FAIL_COUNT++))
                 fi
             else
-                echo -e "  ${YELLOW}… $line${NC}"
+                echo -e "    ${YELLOW}… $step_text (undefined)${NC}"
                 ((PENDING_COUNT++))
             fi
         fi
