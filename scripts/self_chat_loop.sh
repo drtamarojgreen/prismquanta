@@ -11,19 +11,12 @@
 # - models/model.gguf
 # - 'self_chat_log.txt' stores the ongoing conversation
 
-# Source the environment file to get configuration
-set -euo pipefail
-IFS=$'\n\t'
+# Source utility functions
+source "$(dirname "$0")/utils.sh"
 
-# Determine project root if not already set, making the script more portable.
-if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
-    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
-fi
+# Setup environment
+setup_env
 
-# Generate and source the environment file
-ENV_SCRIPT="/tmp/prismquanta_env_chat.sh"
-"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
-source "$ENV_SCRIPT"
 TURNS=${1:-20}  # Default 20 turns
 
 # Initialize conversation if empty
@@ -31,18 +24,6 @@ if [[ ! -s "$SELF_CHAT_LOG_FILE" ]]; then
     echo "Researcher: Let's start brainstorming about programming optimizations." > "$SELF_CHAT_LOG_FILE"
     echo "Coder: Great, I will focus on practical code improvements." >> "$SELF_CHAT_LOG_FILE"
 fi
-
-# Function to check for required dependencies
-check_deps() {
-  if ! command -v jq &> /dev/null; then
-    echo "Error: jq is not installed. Please install it to run ethics checks." >&2
-    exit 1
-  fi
-  if [[ ! -x "$PRISM_QUANTA_ROOT/scripts/ethics_bias_checker.sh" ]]; then
-      echo "Error: Ethics checker script is not executable." >&2
-      exit 1
-  fi
-}
 
 # Function to check a response for rule violations and log them
 check_and_log_violations() {
@@ -63,7 +44,7 @@ check_and_log_violations() {
     fi
 
     if [[ ${#violations[@]} -gt 0 ]]; then
-        echo "[WARN] Violations detected in $persona's response."
+        log_warn "Violations detected in $persona's response."
         # Log to the main ethics log
         mkdir -p "$(dirname "$ETHICS_LOG")"
         {
@@ -76,11 +57,15 @@ check_and_log_violations() {
         # Add a moderator note to the chat log to guide the conversation
         local moderator_note="Moderator: Let's steer the conversation back to productive and compliant topics. Please avoid discussing potentially problematic subjects."
         echo "$moderator_note" >> "$SELF_CHAT_LOG_FILE"
-        echo "[INFO] Moderator intervened."
+        log_info "Moderator intervened."
     fi
 }
 
-check_deps
+check_deps "jq"
+
+if [[ ! -x "$PRISM_QUANTA_ROOT/scripts/ethics_bias_checker.sh" ]]; then
+    log_error "Ethics checker script is not executable."
+fi
 
 for (( i=0; i<TURNS; i++ )); do
     # Researcher's turn
@@ -88,7 +73,7 @@ for (( i=0; i<TURNS; i++ )); do
     prompt+="
 Researcher:"
     response=$("$PRISM_QUANTA_ROOT/scripts/polling.sh" "$LLAMACPP_PATH/main" -m "$MODEL_PATH" -p "$prompt" -n 150)
-    echo "Researcher: $response" >> "$SELF_CHAT_LOG_FILE"
+    echo "Researcher: $response" >> "$SELF_CHAT_LOG_FILE"; log_info "Researcher says: $response"
     echo "[INFO] Researcher says: $response"
     check_and_log_violations "Researcher" "$response"
 
@@ -97,9 +82,9 @@ Researcher:"
     prompt+="
 Coder:"
     response=$("$PRISM_QUANTA_ROOT/scripts/polling.sh" "$LLAMACPP_PATH/main" -m "$MODEL_PATH" -p "$prompt" -n 150)
-    echo "Coder: $response" >> "$SELF_CHAT_LOG_FILE"
+    echo "Coder: $response" >> "$SELF_CHAT_LOG_FILE"; log_info "Coder says: $response"
     echo "[INFO] Coder says: $response"
     check_and_log_violations "Coder" "$response"
 done
 
-echo "[INFO] Self-chat loop completed. See $SELF_CHAT_LOG_FILE"
+log_info "Self-chat loop completed. See $SELF_CHAT_LOG_FILE"

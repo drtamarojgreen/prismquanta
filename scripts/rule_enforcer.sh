@@ -4,15 +4,11 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Determine project root if not already set, making the script more portable.
-if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
-    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
-fi
+# Source utility functions
+source "$(dirname "$0")/utils.sh"
 
-# Generate and source the environment file
-ENV_SCRIPT="/tmp/prismquanta_env_enforcer.sh"
-"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
-source "$ENV_SCRIPT"
+# Setup environment
+setup_env
 
 PROMPT_DIR="$(dirname "$PROMPT_FILE")"
 
@@ -28,13 +24,11 @@ safe_file_op() {
     case "$operation" in
         append)
             if ! echo "$content" >> "$file_path"; then
-                echo "Error: Failed to append to $file_path" >&2
-                exit 1
+                log_error "Failed to append to $file_path"
             fi
             ;;
         *)
-            echo "Error: Invalid file operation '$operation'" >&2
-            exit 1
+            log_error "Invalid file operation '$operation'"
             ;;
     esac
 }
@@ -47,20 +41,20 @@ handle_consequence() {
 
     case "$consequence" in
         flag_for_review)
-            echo "[RULE ENFORCER] Flagging for human review: $violation_type (Severity: $severity)" | tee -a "$LOG_FILE"
+            log_warn "Flagging for human review: $violation_type (Severity: $severity)" | tee -a "$LOG_FILE"
             ;;
         reprompt)
-            echo "[RULE ENFORCER] Re-prompting LLM for violation: $violation_type"
+            log_info "Re-prompting LLM for violation: $violation_type"
             # This is a placeholder for a more sophisticated re-prompting mechanism
             safe_file_op append "$PROMPT_DIR/reprompt_queue.txt" "Original output: $LLM_OUTPUT"
             ;;
         taint)
-            echo "[RULE ENFORCER] Tainting LLM output for violation: $violation_type"
+            log_warn "Tainting LLM output for violation: $violation_type"
             # This is a placeholder for a more sophisticated tainting mechanism
             safe_file_op append "$LOG_FILE" "TAINTED_OUTPUT: $LLM_OUTPUT"
             ;;
         *)
-            echo "[RULE ENFORCER] Unknown consequence: $consequence"
+            log_warn "Unknown consequence: $consequence"
             ;;
     esac
 }
@@ -68,15 +62,14 @@ handle_consequence() {
 # Main function to process violations
 main() {
     if [[ -z "$VIOLATION" ]]; then
-        echo "Usage: $0 <violation_type> [llm_output]"
-        exit 1
+        log_error "Usage: $0 <violation_type> [llm_output]"
     fi
 
     # Find the rule in the ethics rules file
     local rule_line=$(grep "^$VIOLATION|" "$ETHICS_RULES_FILE" || echo "")
 
     if [[ -z "$rule_line" ]]; then
-        echo "[RULE ENFORCER] No enforcement action defined for violation: $VIOLATION"
+        log_info "No enforcement action defined for violation: $VIOLATION"
         exit 0
     fi
 

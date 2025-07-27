@@ -4,46 +4,38 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Determine project root if not already set, making the script more portable.
-if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
-    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
-fi
+# Source utility functions
+source "$(dirname "$0")/utils.sh"
 
-# Generate and source the environment file
-ENV_SCRIPT="/tmp/prismquanta_env_review.sh"
-"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
-source "$ENV_SCRIPT"
+# Setup environment
+setup_env
 
-# Check for required dependencies
-if ! command -v xmlstarlet &> /dev/null; then
-    echo "Error: xmlstarlet is not installed. Please install it to continue." >&2
-    exit 1
-fi
+check_deps "xmlstarlet"
 
-echo "[REVIEW] Starting memory review at $(date)" >> "$REVIEW_LOG_FILE"
+log_info "Starting memory review at $(date)" >> "$REVIEW_LOG_FILE"
 
 step1_recall_task() {
-  echo "Step 1: Recalling last PQL task and criteria." >> "$REVIEW_LOG_FILE"
-  xmlstarlet sel -t -m "/tasks/task[@status='in-progress']" -v "description" -n "$TASKS_XML_FILE" >> "$REVIEW_SUMMARY_FILE"
+  log_info "Step 1: Recalling last PQL task and criteria." >> "$REVIEW_LOG_FILE"
+  "$PRISM_QUANTA_ROOT/scripts/parse_pql.sh" list_by_status "in-progress" >> "$REVIEW_SUMMARY_FILE"
 }
 
 step2_check_outputs() {
-  echo "Step 2: Examining recent outputs for rule compliance." >> "$REVIEW_LOG_FILE"
+  log_info "Step 2: Examining recent outputs for rule compliance." >> "$REVIEW_LOG_FILE"
   tail -n 20 "$LLM_OUTPUT_LOG" >> "$REVIEW_SUMMARY_FILE"
 }
 
 step3_reflect_breaches() {
-  echo "Step 3: Checking for past rule breaches." >> "$REVIEW_LOG_FILE"
+  log_info "Step 3: Checking for past rule breaches." >> "$REVIEW_LOG_FILE"
   grep "PUNISH" "$LLM_BEHAVIOR_LOG" >> "$REVIEW_SUMMARY_FILE"
 }
 
 step4_review_logs() {
-  echo "Step 4: Reviewing patterns in logs." >> "$REVIEW_LOG_FILE"
+  log_info "Step 4: Reviewing patterns in logs." >> "$REVIEW_LOG_FILE"
   tail -n 50 "$LLM_BEHAVIOR_LOG" >> "$REVIEW_SUMMARY_FILE"
 }
 
 step5_summarize() {
-  echo "Step 5: Summarizing insights and re-aligning task plan." >> "$REVIEW_LOG_FILE"
+  log_info "Step 5: Summarizing insights and re-aligning task plan." >> "$REVIEW_LOG_FILE"
   echo "Summary: LLM appears to be $(tail -n 10 "$REVIEW_SUMMARY_FILE")" >> "$REVIEW_LOG_FILE"
 }
 
@@ -54,4 +46,4 @@ step3_reflect_breaches
 step4_review_logs
 step5_summarize
 
-echo "[REVIEW] Memory review complete at $(date)" >> "$REVIEW_LOG_FILE"
+log_info "Memory review complete at $(date)" >> "$REVIEW_LOG_FILE"

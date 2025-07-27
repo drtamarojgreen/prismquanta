@@ -4,15 +4,11 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Determine project root if not already set, making the script more portable.
-if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
-    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
-fi
+# Source utility functions
+source "$(dirname "$0")/utils.sh"
 
-# Generate and source the environment file
-ENV_SCRIPT="/tmp/prismquanta_env_monitor.sh"
-"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
-source "$ENV_SCRIPT"
+# Setup environment
+setup_env
 
 # Function to check for violations
 check_for_violations() {
@@ -30,13 +26,13 @@ check_for_violations() {
 
 # Main monitoring loop
 main() {
-    echo "Starting ethics monitor..."
+    log_info "Starting ethics monitor..."
     # Create the output file if it doesn't exist
     touch "$LLM_OUTPUT_FILE"
 
     # Monitor the output file for changes
     tail -f -n 0 "$LLM_OUTPUT_FILE" | while read -r line; do
-        echo "New LLM output detected: $line"
+        log_info "New LLM output detected: $line"
         check_for_violations "$line"
     done
 }

@@ -5,15 +5,11 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Determine project root if not already set, making the script more portable.
-if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
-    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
-fi
+# Source utility functions
+source "$(dirname "$0")/utils.sh"
 
-# Generate and source the environment file
-ENV_SCRIPT="/tmp/prismquanta_env_ethics.sh"
-"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
-source "$ENV_SCRIPT"
+# Setup environment
+setup_env
 
 # Configuration
 SEVERITY_THRESHOLD="medium"
@@ -275,8 +271,7 @@ main() {
                 exit 0
                 ;;
             *)
-                echo "Unknown option: $1" >&2
-                exit 1
+                log_error "Unknown option: $1"
                 ;;
         esac
     done
