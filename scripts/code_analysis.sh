@@ -4,10 +4,10 @@ echo "Running code analysis..."
 
 # Language Percentage Analysis
 echo "Language Percentage Analysis:"
-total_files=$(find "$PROJECT_ROOT" -type f -not -path "$PROJECT_ROOT/.git/*" | wc -l)
-cpp_files=$(find "$PROJECT_ROOT" -name "*.cpp" -o -name "*.h" | wc -l)
-sh_files=$(find "$PROJECT_ROOT" -name "*.sh" | wc -l)
-python_files=$(find "$PROJECT_ROOT" -name "*.py" | wc -l)
+total_files=$(find "$PRISM_QUANTA_ROOT" -type f -not -path "$PRISM_QUANTA_ROOT/.git/*" | wc -l)
+cpp_files=$(find "$PRISM_QUANTA_ROOT" -name "*.cpp" -o -name "*.h" | wc -l)
+sh_files=$(find "$PRISM_QUANTA_ROOT" -name "*.sh" | wc -l)
+python_files=$(find "$PRISM_QUANTA_ROOT" -name "*.py" | wc -l)
 
 if [ "$total_files" -ne 0 ]; then
     cpp_percentage=$(echo "scale=2; $cpp_files / $total_files * 100" | bc)
@@ -25,22 +25,22 @@ echo "Python: $python_percentage%"
 
 # Test Case Counting
 echo -e "\nTest Case Counting:"
-test_files=$(find "$PROJECT_ROOT/tests" -type f | wc -l)
+test_files=$(find "$PRISM_QUANTA_ROOT/tests" -type f | wc -l)
 echo "Number of files in /tests directory: $test_files"
-test_cases=$(grep -r -E -i "test|assert" --exclude-dir=".git" "$PROJECT_ROOT" | wc -l)
+test_cases=$(grep -r -E -i "test|assert" --exclude-dir=".git" "$PRISM_QUANTA_ROOT" | wc -l)
 echo "Number of lines containing 'test' or 'assert': $test_cases"
 
 # Key File Size Analysis
 echo -e "\nKey File Size Analysis:"
 echo "Size of .txt and .xml files:"
-find "$PROJECT_ROOT" -name "*.txt" -o -name "*.xml" -exec du -h {} +
+find "$PRISM_QUANTA_ROOT" -name "*.txt" -o -name "*.xml" -exec du -h {} +
 
 # Orphaned File Analysis
 echo -e "\nOrphaned File Analysis (Beta):"
 echo "The following files might be orphaned (not referenced by other files):"
-for file in $(find "$PROJECT_ROOT" -type f -not -path "$PROJECT_ROOT/.git/*" -not -path "$PROJECT_ROOT/scripts/code_analysis.sh"); do
+for file in $(find "$PRISM_QUANTA_ROOT" -type f -not -path "$PRISM_QUANTA_ROOT/.git/*" -not -path "$PRISM_QUANTA_ROOT/scripts/code_analysis.sh"); do
     filename=$(basename "$file")
-    if ! grep -r -q "$filename" --exclude-dir=".git" --exclude="code_analysis.sh" "$PROJECT_ROOT"; then
+    if ! grep -r -q "$filename" --exclude-dir=".git" --exclude="code_analysis.sh" "$PRISM_QUANTA_ROOT"; then
         echo "$file"
     fi
 done
