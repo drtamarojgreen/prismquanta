@@ -5,10 +5,16 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+# Determine project root if not already set, making the script more portable.
+if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
+    # The script is in tests/bdd, so root is two levels up
+    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." &>/dev/null && pwd)"
+fi
+
 # Configuration
-FEATURES_DIR="features"
-STEP_DEFINITIONS="step_definitions.sh"
-TEST_RESULTS_DIR="../results"
+FEATURES_DIR="$PRISM_QUANTA_ROOT/tests/bdd/features"
+STEP_DEFINITIONS="$PRISM_QUANTA_ROOT/tests/bdd/step_definitions.sh"
+TEST_RESULTS_DIR="$PRISM_QUANTA_ROOT/tests/results"
 VERBOSE=false
 FILTER=""
 PARALLEL=false
