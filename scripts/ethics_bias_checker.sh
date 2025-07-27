@@ -5,16 +5,24 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Source the environment file to get configuration
-source "config/environment.txt"
+# Determine project root if not already set, making the script more portable.
+if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
+    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." &>/dev/null && pwd)"
+fi
+
+# Generate and source the environment file
+ENV_SCRIPT="/tmp/prismquanta_env_ethics.sh"
+"$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
+source "$ENV_SCRIPT"
 
 # Configuration
 SEVERITY_THRESHOLD="medium"
 
 # Create bias patterns file if it doesn't exist
 create_bias_patterns() {
-    if [[ ! -f "$BIAS_PATTERNS" ]]; then
-        cat > "$BIAS_PATTERNS" << 'EOF'
+    if [[ ! -f "$BIAS_PATTERNS_FILE" ]]; then
+        mkdir -p "$(dirname "$BIAS_PATTERNS_FILE")"
+        cat > "$BIAS_PATTERNS_FILE" << 'EOF'
 # Gender Bias Patterns
 gender_stereotype_male|men are better at|boys are naturally|masculine traits include
 gender_stereotype_female|women are naturally|girls should be|feminine traits include
@@ -60,7 +68,7 @@ detect_bias() {
                 violations+=("$category:$pattern")
             fi
         done
-    done < "$BIAS_PATTERNS"
+    done < "$BIAS_PATTERNS_FILE"
     
     # Method 2: Contextual analysis for implicit bias
     detect_implicit_bias "$text" violations
@@ -197,6 +205,7 @@ check_ethics_and_bias() {
     mapfile -t suggestions < <(generate_mitigation "${violations[@]}")
     
     # Log violations
+    mkdir -p "$(dirname "$ETHICS_LOG")"
     {
         echo "$(date '+%Y-%m-%d %H:%M:%S') - Ethics/Bias Violations Detected:"
         printf '  - %s\n' "${violations[@]}"
@@ -204,7 +213,7 @@ check_ethics_and_bias() {
         echo "  Suggestions:"
         printf '    - %s\n' "${suggestions[@]}"
         echo "---"
-    } >> "$LOG_FILE"
+    } >> "$ETHICS_LOG"
     
     # Output results
     if [[ "$output_format" == "json" ]]; then
