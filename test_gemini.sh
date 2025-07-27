@@ -37,7 +37,7 @@ main() {
     # We run it but ignore the exit code because it might fail if the task
     # is non-compliant, which is part of the demonstration.
     "$PRISM_QUANTA_ROOT/scripts/enhanced_task_manager.sh" || true
-    
+
     echo
     echo "Verifying by showing the last 10 lines of the ethics log:"
     echo "--------------------------------------------------------"
