@@ -33,6 +33,7 @@ TASK_LIST_FINAL_FILE = memory/task_list_final.txt
 TASK_LIST_REVISED_FILE = memory/task_list_revised.txt
 FLAGGED_TASKS_FILE = memory/flagged_tasks.txt
 LLM_INFER_SCRIPT = llm_infer.sh
+CODE_ANALYSIS_REPORT_FILE = memory/code_analysis_report.md
 TASK_TMP_FILE = memory/task_tmp.txt
 POLLING_LLM_OUTPUT_FILE = output/llm_output.txt
 PQL_TESTS_XML_FILE = rules/pql_tests.xml
