@@ -12,6 +12,9 @@ if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
     export PRISM_QUANTA_ROOT
 fi
 
+# Source utility functions to ensure consistent environment setup
+source "$PRISM_QUANTA_ROOT/scripts/utils.sh"
+
 # Configuration
 FEATURES_DIR="$PRISM_QUANTA_ROOT/tests/bdd/features"
 STEP_DEFINITIONS="$PRISM_QUANTA_ROOT/tests/bdd/step_definitions.sh"
@@ -74,6 +77,10 @@ parse_arguments() {
 
 # Initialize test environment
 initialize_test_environment() {
+    # Load environment variables (like OUTPUT_DIR) from environment.txt
+    # This ensures that sourced step definitions can find their dependencies.
+    setup_env
+
     mkdir -p "$TEST_RESULTS_DIR"
     
     # Source step definitions
