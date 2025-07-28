@@ -268,3 +268,25 @@ These tasks improve the developer/user experience and expand the system's capabi
 
 7.  **Documentation and Examples:**
     -   Keep `README.md` and all sample files (`.pql`, `.xml`) updated as features are added.
+
+---
+
+# Code Analysis Metrics
+
+This section defines the key metrics for evaluating code quality.
+
+- **Cyclomatic Complexity**: Measures the complexity of a program's control flow. Lower is better.
+- **Halstead Complexity**: Measures the vocabulary and operators in the code. Lower is better.
+- **Maintainability Index**: A composite metric that combines Halstead complexity, cyclomatic complexity, and lines of code. Higher is better.
+- **Code Coverage**: The percentage of code that is executed during testing. Higher is better.
+
+---
+
+# Code Analysis Script Enhancements
+
+This section lists possible enhancements to the code analysis script.
+
+- **Automated Reporting**: The script should generate a report of the code analysis metrics in a structured format (e.g., JSON, HTML).
+- **Historical Analysis**: The script should be able to track code quality metrics over time to identify trends.
+- **Integration with CI/CD**: The script should be integrated into the CI/CD pipeline to provide continuous feedback on code quality.
+- **Customizable Thresholds**: The script should allow users to define custom thresholds for each metric to trigger warnings or failures.
