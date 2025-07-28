@@ -268,3 +268,56 @@ These tasks improve the developer/user experience and expand the system's capabi
 
 7.  **Documentation and Examples:**
     -   Keep `README.md` and all sample files (`.pql`, `.xml`) updated as features are added.
+
+---
+
+## C++ Daemon Design
+
+The C++ daemon is the core component of the PrismQuanta system. It is responsible for orchestrating the entire workflow, from parsing PQL commands to enforcing rules and managing the LLM lifecycle.
+
+### Components
+
+The daemon will be composed of the following key components:
+
+1.  **PQL Parser:**
+    -   **Objective:** Parse PQL (`.pql`) files to extract commands, criteria, and other metadata.
+    -   **Implementation:** Use a robust XML parsing library (e.g., `tinyxml2` or `pugixml`) to read and validate PQL files against the `pql.xsd` schema.
+    -   **Output:** A structured in-memory representation of the PQL commands.
+
+2.  **Prompt Generator:**
+    -   **Objective:** Assemble a structured prompt for the LLM based on the parsed PQL commands.
+    -   **Implementation:** This component will take the output from the PQL Parser and format it into a text-based prompt that the LLM can understand.
+    -   **Output:** A string containing the fully-formed prompt.
+
+3.  **LLM Runner:**
+    -   **Objective:** Execute the local GGML model with the generated prompt.
+    -   **Implementation:** This component will be responsible for loading the GGML model, passing the prompt to it, and capturing the raw output. It will use the `ggml` library for this purpose.
+    -   **Output:** The raw text output from the LLM.
+
+4.  **Rule Engine:**
+    -   **Objective:** Enforce the rules defined in `rules.xml` on the LLM's output.
+    -   **Implementation:** The Rule Engine will parse `rules.xml` to get the active rules. It will then evaluate the LLM's response against these rules.
+    -   **Output:** A status indicating whether the response passed or failed, and if it failed, which rule was violated.
+
+5.  **Reflection Engine:**
+    -   **Objective:** Generate a "reflective" prompt when a rule is violated.
+    -   **Implementation:** When the Rule Engine reports a failure, the Reflection Engine will look up the consequence for the failed rule in `rules.xml`. It will then generate a new prompt that encourages the LLM to reflect on its mistake and try again.
+    -   **Output:** A new prompt that is fed back into the Prompt Generator.
+
+6.  **Scheduler:**
+    -   **Objective:** Manage the overall workflow and schedule tasks.
+    -   **Implementation:** The Scheduler will be the main loop of the daemon. It will coordinate the other components, manage the flow of data between them, and handle retries and other exceptional circumstances.
+    -   **Output:** Logs and status updates.
+
+### Workflow
+
+The overall workflow of the C++ daemon will be as follows:
+
+1.  The daemon is started.
+2.  The Scheduler kicks off the main loop.
+3.  The PQL Parser reads a PQL file.
+4.  The Prompt Generator creates a prompt.
+5.  The LLM Runner executes the LLM with the prompt.
+6.  The Rule Engine evaluates the LLM's output.
+7.  If the output passes, the task is complete.
+8.  If the output fails, the Reflection Engine generates a new prompt and the process repeats from step 4.
