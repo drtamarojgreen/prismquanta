@@ -40,3 +40,11 @@ The incident was caught before submission, and the original `send_prompt.sh` was
 1.  **Use of Test-Specific Mocking:** When a mock is required for a test, it should be created with a unique name (e.g., `send_prompt.mock.sh`) and placed in a dedicated test directory. The test script should then be explicitly configured to use this mock, for example by temporarily setting an environment variable to point to the mock script.
 2.  **Automated Verification:** Before submitting, a pre-commit hook or a CI/CD pipeline step could be implemented to check for any modifications to critical core scripts. This would act as a safety net to prevent accidental changes from being merged.
 3.  **Clearer Communication:** When using mock scripts or other temporary test setups, it is crucial to clearly communicate the purpose and intended lifespan of these files. This will help prevent misunderstandings and ensure that temporary files are not mistaken for permanent changes.
+
+[LESSON LEARNED]
+Date: 2025-07-28 10:14:13
+Topic: Centralized Environment Variable for Project Root
+Occurrence:
+The `PRISM_QUANTA_ROOT` environment variable was introduced in commit `3cf5bb9241d968224baad1e4ce4479e77459ab37`. This commit added a standardized way to reference the project's root directory across various scripts, improving portability and maintainability. The variable is set in `setup_environment.sh`, `tests/bdd/enhanced_test_runner.sh`, `test_gemini.sh`, and `scripts/utils.sh`.
+Remediation:
+This was a positive change that improved the codebase. No remediation is necessary. This is a good practice to follow for future development.
