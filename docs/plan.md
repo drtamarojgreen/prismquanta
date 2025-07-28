@@ -268,3 +268,162 @@ These tasks improve the developer/user experience and expand the system's capabi
 
 7.  **Documentation and Examples:**
     -   Keep `README.md` and all sample files (`.pql`, `.xml`) updated as features are added.
+
+---
+
+## C++ Daemon Design
+
+The C++ daemon is the core component of the PrismQuanta system. It is responsible for orchestrating the entire workflow, from parsing PQL commands to enforcing rules and managing the LLM lifecycle.
+
+### Components
+
+The daemon will be composed of the following key components:
+
+1.  **PQL Parser:**
+    -   **Objective:** Parse PQL (`.pql`) files to extract commands, criteria, and other metadata.
+    -   **Implementation:** Use a robust XML parsing library (e.g., `tinyxml2` or `pugixml`) to read and validate PQL files against the `pql.xsd` schema.
+    -   **Output:** A structured in-memory representation of the PQL commands.
+
+2.  **Prompt Generator:**
+    -   **Objective:** Assemble a structured prompt for the LLM based on the parsed PQL commands.
+    -   **Implementation:** This component will take the output from the PQL Parser and format it into a text-based prompt that the LLM can understand.
+    -   **Output:** A string containing the fully-formed prompt.
+
+3.  **LLM Runner:**
+    -   **Objective:** Execute the local GGML model with the generated prompt.
+    -   **Implementation:** This component will be responsible for loading the GGML model, passing the prompt to it, and capturing the raw output. It will use the `ggml` library for this purpose.
+    -   **Output:** The raw text output from the LLM.
+
+4.  **Rule Engine:**
+    -   **Objective:** Enforce the rules defined in `rules.xml` on the LLM's output.
+    -   **Implementation:** The Rule Engine will parse `rules.xml` to get the active rules. It will then evaluate the LLM's response against these rules.
+    -   **Output:** A status indicating whether the response passed or failed, and if it failed, which rule was violated.
+
+5.  **Reflection Engine:**
+    -   **Objective:** Generate a "reflective" prompt when a rule is violated.
+    -   **Implementation:** When the Rule Engine reports a failure, the Reflection Engine will look up the consequence for the failed rule in `rules.xml`. It will then generate a new prompt that encourages the LLM to reflect on its mistake and try again.
+    -   **Output:** A new prompt that is fed back into the Prompt Generator.
+
+6.  **Scheduler:**
+    -   **Objective:** Manage the overall workflow and schedule tasks.
+    -   **Implementation:** The Scheduler will be the main loop of the daemon. It will coordinate the other components, manage the flow of data between them, and handle retries and other exceptional circumstances.
+    -   **Output:** Logs and status updates.
+
+### Workflow
+
+The overall workflow of the C++ daemon will be as follows:
+
+1.  The daemon is started.
+2.  The Scheduler kicks off the main loop.
+3.  The PQL Parser reads a PQL file.
+4.  The Prompt Generator creates a prompt.
+5.  The LLM Runner executes the LLM with the prompt.
+6.  The Rule Engine evaluates the LLM's output.
+7.  If the output passes, the task is complete.
+8.  If the output fails, the Reflection Engine generates a new prompt and the process repeats from step 4.
+
+### Management and Reliability
+
+The daemon will be designed with the following principles in mind to ensure it is robust and easy to manage:
+
+*   **Memory Management:**
+    *   Memory will be allocated and deallocated carefully to prevent memory leaks.
+    *   Smart pointers (`std::unique_ptr` and `std::shared_ptr`) will be used to manage object lifetimes and prevent dangling pointers.
+    *   Resource acquisition will follow the RAII (Resource Acquisition Is Initialization) idiom.
+
+*   **Loop Prevention:**
+    *   The daemon will include a mechanism to prevent infinite loops.
+    *   A maximum number of retries will be configured for the reflection loop. If the LLM fails to produce a valid response after the maximum number of retries, the task will be marked as failed and the daemon will move on to the next task.
+
+*   **Start/Stop/Monitor:**
+    *   The daemon will be easy to start and stop using standard system commands (e.g., `systemctl start prismquanta`, `systemctl stop prismquanta`).
+    *   It will provide a clear and concise logging output that can be used to monitor its status and diagnose problems.
+    *   A separate monitoring process will be implemented to watch the daemon and restart it if it crashes.
+
+### Pseudocode
+
+Here is some pseudocode to illustrate how the daemon will work:
+
+```cpp
+class PQLParser {
+public:
+  PQLCommand parse(string pql_file) {
+    // Load and parse the PQL file using an XML parser.
+    // Validate the PQL file against the pql.xsd schema.
+    // Extract the commands, criteria, and other metadata.
+    // Return a structured PQLCommand object.
+  }
+};
+
+class PromptGenerator {
+public:
+  string generate(PQLCommand command) {
+    // Assemble a structured prompt based on the PQL command.
+    // Return the prompt as a string.
+  }
+};
+
+class LLMRunner {
+public:
+  string run(string prompt) {
+    // Load the GGML model.
+    // Pass the prompt to the model.
+    // Capture and return the raw output from the model.
+  }
+};
+
+class RuleEngine {
+public:
+  RuleResult evaluate(string response) {
+    // Parse rules.xml to get the active rules.
+    // Evaluate the response against the rules.
+    // Return a RuleResult object with the status and any violations.
+  }
+};
+
+class ReflectionEngine {
+public:
+  string reflect(RuleResult result) {
+    // Look up the consequence for the failed rule in rules.xml.
+    // Generate a new "reflective" prompt.
+    // Return the new prompt.
+  }
+};
+
+class Scheduler {
+public:
+  void run() {
+    while (true) {
+      // Get the next PQL file from the queue.
+      PQLCommand command = pql_parser.parse(pql_file);
+      string prompt = prompt_generator.generate(command);
+      int retries = 0;
+      while (retries < MAX_RETRIES) {
+        string response = llm_runner.run(prompt);
+        RuleResult result = rule_engine.evaluate(response);
+        if (result.is_pass()) {
+          // The task is complete.
+          break;
+        } else {
+          // The task failed, so generate a reflective prompt and retry.
+          prompt = reflection_engine.reflect(result);
+          retries++;
+        }
+      }
+    }
+  }
+
+private:
+  PQLParser pql_parser;
+  PromptGenerator prompt_generator;
+  LLMRunner llm_runner;
+  RuleEngine rule_engine;
+  ReflectionEngine reflection_engine;
+};
+
+int main() {
+  Scheduler scheduler;
+  scheduler.run();
+  return 0;
+}
+```
