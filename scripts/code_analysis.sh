@@ -1,64 +1,161 @@
 #!/bin/bash
-# This script performs code analysis.
+# code_analysis.sh - Performs static analysis on the project's shell scripts.
+
+set -euo pipefail
+IFS=$'\n\t'
 
 # Source utility functions
 source "$(dirname "$0")/utils.sh"
 
-# Setup environment
+# Setup environment to get variables like CODE_ANALYSIS_REPORT_FILE
 setup_env
-
-log_info "Running code analysis..."
-
-# Language Percentage Analysis
-log_info "Language Percentage Analysis:"
-total_files=$(find "$PRISM_QUANTA_ROOT" -type f -not -path "$PRISM_QUANTA_ROOT/.git/*" | wc -l)
-cpp_files=$(find "$PRISM_QUANTA_ROOT" -name "*.cpp" -o -name "*.h" | wc -l)
-sh_files=$(find "$PRISM_QUANTA_ROOT" -name "*.sh" | wc -l)
-python_files=$(find "$PRISM_QUANTA_ROOT" -name "*.py" | wc -l)
-
-if [ "$total_files" -ne 0 ]; then
-    cpp_percentage=$(echo "scale=2; $cpp_files / $total_files * 100" | bc)
-    sh_percentage=$(echo "scale=2; $sh_files / $total_files * 100" | bc)
-    python_percentage=$(echo "scale=2; $python_files / $total_files * 100" | bc)
-else
-    cpp_percentage=0
-    sh_percentage=0
-    python_percentage=0
-fi
-
-echo "C++: $cpp_percentage%"
-echo "Shell: $sh_percentage%"
-echo "Python: $python_percentage%"
-
-# Test Case Counting
-log_info "Test Case Counting:"
-test_files=$(find "$PRISM_QUANTA_ROOT/tests" -type f | wc -l)
-echo "Number of files in /tests directory: $test_files"
-test_cases=$(grep -r -E -i "test|assert" --exclude-dir=".git" "$PRISM_QUANTA_ROOT" | wc -l)
-echo "Number of lines containing 'test' or 'assert': $test_cases"
-
-# Key File Size Analysis
-log_info "Key File Size Analysis:"
-echo "Size of .txt and .xml files:"
-find "$PRISM_QUANTA_ROOT" -name "*.txt" -o -name "*.xml" -exec du -h {} +
-
-# Orphaned File Analysis
-log_info "Orphaned File Analysis (Beta):"
-echo "The following files might be orphaned (not referenced by other files):"
-for file in $(find "$PRISM_QUANTA_ROOT" -type f -not -path "$PRISM_QUANTA_ROOT/.git/*" -not -path "$PRISM_QUANTA_ROOT/scripts/code_analysis.sh"); do
-    filename=$(basename "$file")
-    if ! grep -r -q "$filename" --exclude-dir=".git" --exclude="code_analysis.sh" "$PRISM_QUANTA_ROOT"; then
-        echo "$file"
+ 
+# Check for required dependencies for the enhanced analysis
+check_deps "git" "xmlstarlet" "find" "grep" "wc" "stat"
+ 
+# --- Analysis Functions ---
+ 
+generate_report_header() {
+    log_info "Starting comprehensive code analysis..."
+ 
+    # Ensure the report directory exists before trying to write to it.
+    mkdir -p "$(dirname "$CODE_ANALYSIS_REPORT_FILE")"
+ 
+    # Clear the previous report file and add a header
+    {
+        echo "# Code Analysis Report"
+        echo "Generated on: $(date)"
+        echo "---"
+    } > "$CODE_ANALYSIS_REPORT_FILE"
+}
+ 
+analyze_test_counts() {
+    log_info "Analyzing test counts..."
+ 
+    local pql_test_count=0
+    if [[ -f "$PQL_TESTS_XML_FILE" ]]; then
+        # Counts all direct children of the root element
+        pql_test_count=$(xmlstarlet sel -t -v "count(/*/*)" "$PQL_TESTS_XML_FILE" 2>/dev/null || echo 0)
     fi
-done
-
-# Project-specific Metrics
-log_info "Project-specific Metrics:"
-task_count=$(grep -c "<task>" "$TASKS_XML_FILE")
-echo "Number of tasks: $task_count"
-rule_count=$(grep -c "<rule>" "$RULESET_XML_FILE")
-echo "Number of rules: $rule_count"
-incident_count=$(wc -l < "$RULES_FILE")
-echo "Number of incidents in rules.txt: $incident_count"
-prompt_count=$(find "$PROMPT_FILE" -type f | wc -l)
-echo "Number of prompts: $prompt_count"
+ 
+    local ethics_test_count=0
+    if [[ -f "$ETHICS_AND_BIAS_TESTS_XML_FILE" ]]; then
+        ethics_test_count=$(xmlstarlet sel -t -v "count(/tasks/task)" "$ETHICS_AND_BIAS_TESTS_XML_FILE" 2>/dev/null || echo 0)
+    fi
+ 
+    local bdd_scenario_count=0
+    local features_dir="$PRISM_QUANTA_ROOT/tests/bdd/features"
+    if [[ -d "$features_dir" ]]; then
+        # Finds all .feature files, greps for Scenario lines, and counts them.
+        # The subshell with `|| true` prevents `grep` from exiting the script if no matches are found.
+        bdd_scenario_count=$( (find "$features_dir" -type f -name "*.feature" -print0 | xargs -0 --no-run-if-empty grep -E '^[[:space:]]*Scenario:') || true | wc -l)
+    fi
+ 
+    local total_tests=$((pql_test_count + ethics_test_count + bdd_scenario_count))
+ 
+    {
+        echo "## Project Test Metrics"
+        echo
+        echo "- **PQL Test Cases:** $pql_test_count"
+        echo "- **Ethics & Bias Test Cases:** $ethics_test_count"
+        echo "- **BDD Scenarios:** $bdd_scenario_count"
+        echo "- **Total Automated Tests:** $total_tests"
+        echo
+        echo "---"
+    } >> "$CODE_ANALYSIS_REPORT_FILE"
+}
+ 
+analyze_docs_status() {
+    log_info "Analyzing documentation status..."
+    local docs_dir="$PRISM_QUANTA_ROOT/docs" # Assuming docs directory is at the root
+    local last_modified="Directory not found."
+ 
+    if [[ -d "$docs_dir" ]]; then
+        # This command for stat is for GNU/Linux. It might need adjustment for macOS/BSD.
+        if command -v stat &> /dev/null; then
+            last_modified=$(stat -c %y "$docs_dir")
+        else
+            last_modified="stat command not found, cannot determine modification time."
+        fi
+    fi
+ 
+    {
+        echo "## Documentation Status"
+        echo
+        echo "- **Docs Directory Last Modified:** $last_modified"
+        echo
+        echo "---"
+    } >> "$CODE_ANALYSIS_REPORT_FILE"
+}
+ 
+analyze_orphaned_files() {
+    log_info "Checking for orphaned (untracked) files..."
+ 
+    # Use git to find untracked files, excluding those in .gitignore
+    local orphaned_files
+    orphaned_files=$(git ls-files --others --exclude-standard)
+ 
+    {
+        echo "## Orphaned File Analysis"
+        echo
+        if [[ -n "$orphaned_files" ]]; then
+            echo "Found untracked files. These might be temporary files, logs, or new files that need to be committed or added to \`.gitignore\`:"
+            echo '```'
+            echo "$orphaned_files"
+            echo '```'
+        else
+            echo "No orphaned or untracked files found in the repository."
+        fi
+        echo
+        echo "---"
+    } >> "$CODE_ANALYSIS_REPORT_FILE"
+}
+ 
+analyze_todos() {
+    log_info "Scanning for TODO comments in shell scripts..."
+ 
+    {
+        echo "## TODOs in Scripts"
+        echo
+    } >> "$CODE_ANALYSIS_REPORT_FILE"
+ 
+    local found_any_todos=false
+    # Find all shell scripts, excluding .git, and grep for TODOs
+    find "$PRISM_QUANTA_ROOT" -type f -name "*.sh" -not -path "*/.git/*" -print0 | while IFS= read -r -d '' script_file; do
+        local relative_path="${script_file#$PRISM_QUANTA_ROOT/}"
+ 
+        # The `|| true` prevents the script from exiting if grep finds no matches.
+        if todo_findings=$(grep -n "TODO" "$script_file" || true); then
+            if [[ -n "$todo_findings" ]]; then
+                found_any_todos=true
+                {
+                    echo "### \`$relative_path\`"
+                    echo '```'
+                    echo "$todo_findings"
+                    echo '```'
+                    echo
+                } >> "$CODE_ANALYSIS_REPORT_FILE"
+            fi
+        fi
+    done
+ 
+    if [[ "$found_any_todos" == "false" ]]; then
+        {
+            echo "No TODO comments found in any shell scripts."
+            echo
+        } >> "$CODE_ANALYSIS_REPORT_FILE"
+    fi
+}
+ 
+# --- Main Execution ---
+ 
+main() {
+    generate_report_header
+    analyze_test_counts
+    analyze_docs_status
+    analyze_orphaned_files
+    analyze_todos
+    log_info "Code analysis complete. Report saved to: $CODE_ANALYSIS_REPORT_FILE"
+}
+ 
+main "$@"

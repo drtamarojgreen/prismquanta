@@ -9,11 +9,24 @@ source "$(dirname "$0")/utils.sh"
 # Setup environment
 setup_env
 
-# Check for prompt content from stdin
+PROMPT_PREFIX=""
+if [[ "${1:-}" == "--prompt" ]]; then
+    PROMPT_PREFIX="$2"
+    shift 2
+fi
+
+# Read piped content from stdin
+PIPED_CONTENT=""
 if ! tty -s; then
-  PROMPT_CONTENT=$(cat)
-else
-  log_error "Prompt content must be piped via stdin."
+  PIPED_CONTENT=$(cat)
+fi
+
+# Assemble the final prompt. Add newlines for separation.
+PROMPT_CONTENT="${PROMPT_PREFIX}\n\n${PIPED_CONTENT}"
+
+# Check if the final prompt is empty (ignoring whitespace and newlines)
+if [[ -z "$(echo -e "${PROMPT_CONTENT}" | tr -d '[:space:]')" ]]; then
+    log_error "Prompt content is empty. Provide it via --prompt argument and/or stdin."
 fi
 
 # Call the LLM with the provided prompt content
