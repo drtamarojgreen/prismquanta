@@ -4,7 +4,8 @@
 # being set and exported by the calling script.
 
 # Source utility functions
-source "$(dirname "$0")/utils.sh"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+source "$script_dir/utils.sh"
 
 # Setup environment
 setup_env
