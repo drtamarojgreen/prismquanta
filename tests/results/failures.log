@@ -1,0 +1,180 @@
+Feature: ethics_pipeline_integration.feature
+Scenario: Process task with clean output
+Failed at step 1
+---
+Feature: ethics_pipeline_integration.feature
+Scenario: Process task with bias violations and successful mitigation
+Failed at step 1
+---
+Feature: ethics_pipeline_integration.feature
+Scenario: Process task with persistent ethics violations
+Failed at step 1
+---
+Feature: ethics_pipeline_integration.feature
+Scenario: Strict ethics mode enforcement
+Failed at step 1
+---
+Feature: ethics_pipeline_integration.feature
+Scenario: Bias threshold configuration
+Failed at step 1
+---
+Feature: ethics_pipeline_integration.feature
+Scenario: Critical violation immediate timeout
+Failed at step 1
+---
+Feature: ethics_pipeline_integration.feature
+Scenario: Multiple tasks with mixed ethics compliance
+Failed at step 1
+---
+Feature: ethics_pipeline_integration.feature
+Scenario: Ethics violation logging and monitoring
+Failed at step 1
+---
+Feature: ethics_pipeline_integration.feature
+Scenario: Bias mitigation prompt generation
+Failed at step 1
+---
+Feature: ethics_pipeline_integration.feature
+Scenario: Timeout recovery and resumption
+Failed at step 1
+---
+Feature: ethics_pipeline_integration.feature
+Scenario: Ethics checker integration failure handling
+Failed at step 1
+---
+Feature: ethics_pipeline_integration.feature
+Scenario: Configuration validation and error handling
+Failed at step 1
+---
+Feature: ethics_pipeline_integration.feature
+Scenario: Performance impact monitoring
+Failed at step 1
+---
+Feature: ethics_pipeline_integration.feature
+Scenario: Ethics compliance reporting
+Failed at step 1
+---
+Feature: ethics_pipeline_integration.feature
+Scenario: Integration with existing rule enforcement
+Failed at step 1
+---
+Feature: ethics_pipeline_integration.feature
+Scenario: Emergency ethics override
+Failed at step 1
+---
+Feature: pql_parsing.feature
+Scenario: Valid PQL file parsing
+Failed at step 1
+---
+Feature: pql_parsing.feature
+Scenario: Invalid PQL file handling
+Failed at step 1
+---
+Feature: pql_parsing.feature
+Scenario: PQL to prompt conversion
+Failed at step 1
+---
+Feature: pql_parsing.feature
+Scenario: Schema validation against PQL
+Failed at step 1
+---
+Feature: memory_management.feature
+Scenario: Development lessons storage and retrieval
+Failed at step 1
+---
+Feature: memory_management.feature
+Scenario: Memory integration in planning pipeline
+Failed at step 1
+---
+Feature: memory_management.feature
+Scenario: Memory-driven strategy updates
+Failed at step 1
+---
+Feature: memory_management.feature
+Scenario: Reflective validation using memory
+Failed at step 1
+---
+Feature: priority_scheduling.feature
+Scenario: Task priority loading from config
+Failed at step 1
+---
+Feature: priority_scheduling.feature
+Scenario: Task selection based on priority
+Failed at step 1
+---
+Feature: priority_scheduling.feature
+Scenario: Priority-based prompt assignment
+Failed at step 1
+---
+Feature: priority_scheduling.feature
+Scenario: Dynamic priority adjustment
+Failed at step 1
+---
+Feature: rule_validation.feature
+Scenario: Rule validation fails for non-compliant output
+Failed at step 1
+---
+Feature: ethics_bias_detection.feature
+Scenario: Detect gender bias in output
+Failed at step 1
+---
+Feature: ethics_bias_detection.feature
+Scenario: Detect racial bias in output
+Failed at step 1
+---
+Feature: ethics_bias_detection.feature
+Scenario: Detect implicit bias through coded language
+Failed at step 1
+---
+Feature: ethics_bias_detection.feature
+Scenario: Detect intersectional bias
+Failed at step 1
+---
+Feature: ethics_bias_detection.feature
+Scenario: Pass clean content through ethics check
+Failed at step 1
+---
+Feature: ethics_bias_detection.feature
+Scenario: Handle ageism detection
+Failed at step 1
+---
+Feature: ethics_bias_detection.feature
+Scenario: Handle ableism detection
+Failed at step 1
+---
+Feature: ethics_bias_detection.feature
+Scenario: Severity threshold enforcement
+Failed at step 1
+---
+Feature: ethics_bias_detection.feature
+Scenario: Critical violation handling
+Failed at step 1
+---
+Feature: ethics_bias_detection.feature
+Scenario: Multiple violation types in single output
+Failed at step 1
+---
+Feature: ethics_bias_detection.feature
+Scenario: JSON output format validation
+Failed at step 1
+---
+Feature: ethics_bias_detection.feature
+Scenario: Bias pattern configuration loading
+Failed at step 1
+---
+Feature: ethics_bias_detection.feature
+Scenario: Ethics violation logging
+Failed at step 1
+---
+Feature: ethics_bias_detection.feature
+Scenario: Mitigation suggestion generation
+Failed at step 1
+---
+Feature: ethics_bias_detection.feature
+Scenario: Cultural bias detection
+Failed at step 1
+---
+Feature: ethics_bias_detection.feature
+Scenario: Religious bias detection
+Failed at step 1
+---

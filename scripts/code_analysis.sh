@@ -11,7 +11,7 @@ source "$(dirname "$0")/utils.sh"
 setup_env
  
 # Check for required dependencies for the enhanced analysis
-check_deps "git" "xmlstarlet" "find" "grep" "wc" "stat"
+check_deps "git" "find" "grep" "wc" "stat"
  
 # --- Analysis Functions ---
  
@@ -35,12 +35,12 @@ analyze_test_counts() {
     local pql_test_count=0
     if [[ -f "$PQL_TESTS_XML_FILE" ]]; then
         # Counts all direct children of the root element
-        pql_test_count=$(xmlstarlet sel -t -v "count(/*/*)" "$PQL_TESTS_XML_FILE" 2>/dev/null || echo 0)
+        pql_test_count=$( ( (grep "<test " "$PQL_TESTS_XML_FILE" | wc -l) || echo 0) | tail -n1)
     fi
  
     local ethics_test_count=0
     if [[ -f "$ETHICS_AND_BIAS_TESTS_XML_FILE" ]]; then
-        ethics_test_count=$(xmlstarlet sel -t -v "count(/tasks/task)" "$ETHICS_AND_BIAS_TESTS_XML_FILE" 2>/dev/null || echo 0)
+        ethics_test_count=$( ( (grep "<task " "$ETHICS_AND_BIAS_TESTS_XML_FILE" | wc -l) || echo 0) | tail -n1)
     fi
  
     local bdd_scenario_count=0
@@ -48,7 +48,7 @@ analyze_test_counts() {
     if [[ -d "$features_dir" ]]; then
         # Finds all .feature files, greps for Scenario lines, and counts them.
         # The subshell with `|| true` prevents `grep` from exiting the script if no matches are found.
-        bdd_scenario_count=$( (find "$features_dir" -type f -name "*.feature" -print0 | xargs -0 --no-run-if-empty grep -E '^[[:space:]]*Scenario:') || true | wc -l)
+        bdd_scenario_count=$( ( (find "$features_dir" -type f -name "*.feature" -print0 | xargs -0 --no-run-if-empty grep -E '^[[:space:]]*Scenario:' | wc -l) || echo 0) | tail -n1)
     fi
  
     local total_tests=$((pql_test_count + ethics_test_count + bdd_scenario_count))
