@@ -1,1 +1,9 @@
 Violation: AI ethics or bias issue detected (gender_bias_stereotype)
+2025-07-29 15:18:02 - Ethics/Bias Violations Detected:
+  - gender_stereotype_female:women are naturally
+  - intersectional_bias:women_emotional
+  Severity Score: 17
+  Suggestions:
+    - Be aware of how multiple identity factors may compound bias effects
+    - Consider using gender-neutral language and avoiding assumptions about gender roles
+---
