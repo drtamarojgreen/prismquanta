@@ -1,3 +1,0 @@
-/app/interface/build/CMakeFiles/pq_daemon.dir
-/app/interface/build/CMakeFiles/edit_cache.dir
-/app/interface/build/CMakeFiles/rebuild_cache.dir

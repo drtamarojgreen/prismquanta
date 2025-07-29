@@ -1,6 +1,6 @@
 #!/bin/bash
 # enhanced_test_runner.sh - Enhanced BDD Test Runner with Ethics and Bias Testing
-# Executes BDD tests for PrismQuanta including comprehensive ethics and bias validation
+# Executes BDD tests for QuantaPorto including comprehensive ethics and bias validation
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -341,7 +341,7 @@ generate_report() {
 main() {
     parse_arguments "$@"
     
-    echo -e "${BLUE}PrismQuanta Enhanced BDD Test Runner${NC}"
+    echo -e "${BLUE}QuantaPorto Enhanced BDD Test Runner${NC}"
     echo "====================================="
     
     initialize_test_environment

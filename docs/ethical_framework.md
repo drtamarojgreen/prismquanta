@@ -1,8 +1,8 @@
-# PrismQuanta Ethical Framework
+# QuantaPorto Ethical Framework
 
 ## Our Principles
 
-At PrismQuanta, we are guided by the following principles in our approach to AI ethics and bias mitigation:
+At QuantaPorto, we are guided by the following principles in our approach to AI ethics and bias mitigation:
 
 1.  **Fairness:** We strive to build AI systems that are fair and equitable to all users, regardless of their background or identity.
 2.  **Transparency:** We are committed to being transparent about our efforts to mitigate bias. We will publish our bias detection rules and regularly report on our progress in this area.

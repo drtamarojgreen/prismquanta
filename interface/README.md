@@ -1,6 +1,6 @@
-# PrismQuanta C++ Interface
+# QuantaPorto C++ Interface
 
-This directory contains the source code for the core PrismQuanta C++ application. This application serves as a robust, high-performance engine that replaces the complex logic previously handled by numerous shell scripts.
+This directory contains the source code for the core QuantaPorto C++ application. This application serves as a robust, high-performance engine that replaces the complex logic previously handled by numerous shell scripts.
 
 ## Mission
 
@@ -46,8 +46,8 @@ The C++ application will be designed to be called from the command line with dif
 
 ```bash
 # Example: Run a single task from a PQL file
-./prismquanta_interface --run-pql-task rules/pql_sample.xml --task-id=task-001
+./quantaporto_interface --run-pql-task rules/pql_sample.xml --task-id=task-001
 
 # Example: Run the full planning loop
-./prismquanta_interface --run-planner
+./quantaporto_interface --run-planner
 ```

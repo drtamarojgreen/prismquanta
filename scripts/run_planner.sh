@@ -1,5 +1,5 @@
 #!/bin/bash
-# run_planner.sh - Master control loop for PrismQuanta's thinking cycles
+# run_planner.sh - Master control loop for QuantaPorto's thinking cycles
 
 set -euo pipefail
 IFS=$'\n\t'

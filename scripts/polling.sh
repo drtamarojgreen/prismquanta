@@ -10,7 +10,7 @@ if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
 fi
 
 # Generate and source the environment file
-ENV_SCRIPT="/tmp/prismquanta_env_polling.sh"
+ENV_SCRIPT="/tmp/quantaporto_env_polling.sh"
 "$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
 source "$ENV_SCRIPT"
 

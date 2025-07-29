@@ -1,5 +1,5 @@
 #!/bin/bash
-# plan_code_tasks.sh – Multi-stage reflective planner for PrismQuanta
+# plan_code_tasks.sh – Multi-stage reflective planner for QuantaPorto
 
 set -euo pipefail
 IFS=$'\n\t'

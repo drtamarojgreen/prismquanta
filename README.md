@@ -1,21 +1,25 @@
-# PrismQuanta
+# QuantaPorto
 
-**PrismQuanta** is a philosophical and technical framework for developing and interacting with Large Language Models (LLMs) in a local, controlled, and interpretable environment.
+**This project has been closed and is no longer maintained. It will soon be available in a new repository.**
+
+---
+
+**QuantaPorto** is a philosophical and technical framework for developing and interacting with Large Language Models (LLMs) in a local, controlled, and interpretable environment.
 
 > *“We didn’t just build a system. We raised a mind.”*
 
 ---
 
-## 🌌 What is PrismQuanta?
+## 🌌 What is QuantaPorto?
 
-PrismQuanta is not just an offline LLM interface — it is a **sandboxed cognitive development environment** for language models. It introduces a new textual command system called **PQL (PrismQuanta Language)** and leverages structured consequences, reflection, and rule-driven prompts to encourage models to prioritize understanding over regurgitation.
+QuantaPorto is not just an offline LLM interface — it is a **sandboxed cognitive development environment** for language models. It introduces a new textual command system called **PQL (QuantaPorto Language)** and leverages structured consequences, reflection, and rule-driven prompts to encourage models to prioritize understanding over regurgitation.
 
 ---
 
 
 ## 🧠 Core Concepts
 
-### 🔷 PQL - PrismQuanta Language
+### 🔷 PQL - QuantaPorto Language
 A human-readable, XML-defined intermediate language used to issue tasks, constraints, and reflections to the LLM. Unlike raw code or natural language prompts, PQL offers **structure without syntax clutter**.
 
 ### 📜 Rule System
@@ -28,21 +32,21 @@ Instead of hard restrictions, the system employs *philosophical* or *reflective 
 Standardized, modular templates auto-generated from PQL commands — ensuring prompts maintain context, integrity, and alignment with internal rules and memory.
 
 ### 📁 Local Autonomy
-PrismQuanta runs entirely **offline**. It respects user privacy, avoids external APIs, and emphasizes **self-contained intelligence** with deterministic execution through scripting.
+QuantaPorto runs entirely **offline**. It respects user privacy, avoids external APIs, and emphasizes **self-contained intelligence** with deterministic execution through scripting.
 
 ---
 
 ## 📂 Project Structure
 
 ```plaintext
-PrismQuanta/
+QuantaPorto/
 ├── config/
 │   ├── priorities.txt
 │   └── rules.txt
 ├── docs/
 │   └── README.md
 ├── interface/
-│   └── prismquanta_interface.cpp
+│   └── quantaporto_interface.cpp
 ├── memory/
 │   ├── development_lessons.txt
 │   └── test.txt
@@ -68,7 +72,7 @@ PrismQuanta/
 │   └── validation_loop.sh
 ├── .timeout
 ├── main
-├── prismquanta_interface
+├── quantaporto_interface
 └── README.md
 ```
 
@@ -76,7 +80,7 @@ PrismQuanta/
 
 ## ⚙️ Getting Started
 
-This section provides instructions on how to set up and use the tools within the PrismQuanta framework.
+This section provides instructions on how to set up and use the tools within the QuantaPorto framework.
 
 ### Dependencies
 
@@ -116,7 +120,7 @@ Navigate to the `scripts` directory to run these commands:
 
 ### Scripts
 
-The `scripts/` directory contains a rich set of tools for managing the entire lifecycle of the PrismQuanta system, from planning and task execution to self-reflection and analysis. Below is a breakdown of the key scripts and their functions.
+The `scripts/` directory contains a rich set of tools for managing the entire lifecycle of the QuantaPorto system, from planning and task execution to self-reflection and analysis. Below is a breakdown of the key scripts and their functions.
 
 #### Core Task & Project Management
 
@@ -148,7 +152,7 @@ The `scripts/` directory contains a rich set of tools for managing the entire li
 
 ## ⚖️ AI Ethics and Bias Enhancement
 
-PrismQuanta has undergone a significant enhancement of its ethics and bias detection system, introducing advanced multi-method bias detection, integrated pipeline processing, and comprehensive testing frameworks to ensure responsible AI deployment.
+QuantaPorto has undergone a significant enhancement of its ethics and bias detection system, introducing advanced multi-method bias detection, integrated pipeline processing, and comprehensive testing frameworks to ensure responsible AI deployment.
 
 ### Key Enhancements
 
@@ -160,10 +164,6 @@ PrismQuanta has undergone a significant enhancement of its ethics and bias detec
 For more details, please see the [full ethics enhancement documentation](docs/ETHICS_ENHANCEMENT_README.md).
 
 ---
-
-## 🤝 Contributing
-
-Contributions are highly encouraged! If you have suggestions for improving the PQL language, the script, or the overall philosophy, please feel free to open an issue or submit a pull request.
 
 ## 📜 License
 

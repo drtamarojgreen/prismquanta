@@ -1,7 +1,7 @@
 #!/bin/bash
 # enhanced_task_manager.sh
 #
-# Enhanced PrismQuanta Task Manager with integrated ethics and bias checking
+# Enhanced QuantaPorto Task Manager with integrated ethics and bias checking
 # Manages AI tasks with comprehensive ethics monitoring and bias mitigation
 #
 # Usage: ./enhanced_task_manager.sh [--ethics-strict] [--bias-threshold N]
