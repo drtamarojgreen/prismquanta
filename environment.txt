@@ -1,8 +1,13 @@
 # --- Configuration ---
-# All paths are relative to the project root directory where the executable is run.
+# Paths for files inside the project are relative to the project root.
 
-LLAMACPP_PATH = .
-PROJECT_ROOT = .
+# --- External Dependencies (Absolute Paths) ---
+# The following paths for the model and LLM executable must be ABSOLUTE.
+
+LLAMACPP_PATH = /path/to/your/llama.cpp/bin
+LLM_NAME = llama-cli
+MODEL_DIRECTORY = /path/to/your/models
+MODEL_FILENAME = your_model_name.gguf
 LOG_FILE = logs/interface.log
 PROMPT_FILE = prompts/input_prompt.txt
 TIMEOUT_MARKER = logs/.timeout
@@ -12,7 +17,6 @@ POLL_INTERVAL_SEC = 60
 TIMEOUT_DURATION_SEC = 7200
 STRATEGY_PLAN_FILE = memory/strategy_plan.txt
 REQUIREMENTS_FILE = memory/requirements.md
-MODEL_PATH = models/model.gguf
 TASK_FILE = rules/tasks.txt
 OUTPUT_DIR = agent_output
 TIMEOUT_FILE = timeout.flag
@@ -37,11 +41,11 @@ PHILOSOPHY_TASKS_FILE = rules/philosophy_tasks.txt
 REWARD_TASKS_FILE = rules/reward_tasks.txt
 ACTIVE_TASKS_FILE = rules/active_tasks.txt
 PQL_TEST_RESULTS_FILE = logs/pql_test_results.log
-ETHICS_TEST_RESULTS_FILE = ethics_test_results.txt
-ACTIVE_TASKS_PROMPT_FILE = prompts/active_tasks.txt
+ETHICS_TEST_RESULTS_FILE = logs/ethics_test_results.log
+ACTIVE_TASKS_PROMPT_FILE = prompts/active_tasks_prompt.txt
 RULESET_XML_FILE = rules/ruleset.xml
 RUN_LOG_FILE = logs/run_log.txt
 SELF_CHAT_LOG_FILE = logs/self_chat_log.txt
 PROJECT_GOALS_FILE = memory/project_goals.txt
-CURRENT_PROMPT_FILE = current_prompt.txt
-CURRENT_RESPONSE_FILE = current_response.txt
+CURRENT_PROMPT_FILE = memory/current_prompt.txt
+CURRENT_RESPONSE_FILE = memory/current_response.txt

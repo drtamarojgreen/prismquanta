@@ -16,8 +16,11 @@ setup_env
 # We assume a standard name for the system prompt.
 SYSTEM_PROMPT_FILE="$PRISM_QUANTA_ROOT/prompts/system_prompt.txt"
 USER_PROMPT_FILE="$PRISM_QUANTA_ROOT/$PROMPT_FILE"
-MODEL_FILE_FULL_PATH="$PRISM_QUANTA_ROOT/$MODEL_PATH"
-INFER_EXECUTABLE="$PRISM_QUANTA_ROOT/$LLAMACPP_PATH/llama-cli"
+
+# Model and executable paths are now expected to be absolute paths defined in environment.txt
+# and are no longer relative to the project root.
+MODEL_FILE_FULL_PATH="$MODEL_DIRECTORY/$MODEL_FILENAME"
+INFER_EXECUTABLE="$LLAMACPP_PATH/$LLM_NAME"
 
 # Colors for output
 BLUE='\033[0;34m'
@@ -61,7 +64,7 @@ main() {
     # --- Execution ---
     echo "Loading system prompt from: $SYSTEM_PROMPT_FILE"
     echo "Loading user prompt from:   $USER_PROMPT_FILE"
-    echo "Using model:                $MODEL_PATH"
+    echo "Using model:                $MODEL_DIRECTORY/$MODEL_FILENAME"
     echo "Using inference executable: $INFER_EXECUTABLE"
     echo
     echo -e "${BLUE}--- Sending Prompts to Model ---${NC}"
