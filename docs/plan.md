@@ -1,4 +1,4 @@
-# PrismQuanta Implementation Plan
+# QuantaPorto Implementation Plan
 
 This plan organizes tasks by directory and function, enabling modular implementation by autonomous agents. Each section includes the objective, implementation steps, and expected outputs.
 
@@ -10,13 +10,13 @@ This plan organizes tasks by directory and function, enabling modular implementa
 - **Objective**: Define task priorities for LLM scheduling.
 - **Tasks**:
   - Parse this file before prompt assignment.
-  - Integrate priority selection logic in `interface/prismquanta_interface.cpp`.
+  - Integrate priority selection logic in `interface/quantaporto_interface.cpp`.
 - **Output**: Map<string, int> of tasks with priority levels.
 
 ### rules.txt
 - **Objective**: Define enforcement logic for rule violations.
 - **Tasks**:
-  - Load and parse in `interface/prismquanta_interface.cpp`.
+  - Load and parse in `interface/quantaporto_interface.cpp`.
   - Match against logs or prompt outputs.
   - Trigger enforcement via `scripts/rule_enforcer.sh`.
 - **Output**: Rule list used during consequence evaluation.
@@ -36,7 +36,7 @@ This plan organizes tasks by directory and function, enabling modular implementa
 
 ## interface/
 
-### prismquanta_interface.cpp
+### quantaporto_interface.cpp
 - **Objective**: C++ scheduler and command interface for Bash-driven LLM workflows.
 - **Tasks**:
   - Load rules and priorities.
@@ -71,7 +71,7 @@ This plan organizes tasks by directory and function, enabling modular implementa
 - **Objective**: Active prompt loaded by LLM pipeline.
 - **Tasks**:
   - Replace dynamically based on priority mapping.
-  - Use by `run_task.sh` and `interface/prismquanta_interface.cpp`.
+  - Use by `run_task.sh` and `interface/quantaporto_interface.cpp`.
 - **Output**: Prompt consumed by core execution engine.
 
 ---
@@ -201,16 +201,16 @@ This plan organizes tasks by directory and function, enabling modular implementa
 ### .timeout
 - **Objective**: Prevent retry after failed runs.
 - **Tasks**:
-  - Modified by `interface/prismquanta_interface.cpp` after failure.
+  - Modified by `interface/quantaporto_interface.cpp` after failure.
 - **Output**: Polling suspension signal.
 
 ### main
 - **Objective**: Executable entry point or stub binary.
 - **Tasks**:
-  - Validate link to `interface/prismquanta_interface.cpp`.
+  - Validate link to `interface/quantaporto_interface.cpp`.
 - **Output**: Startup trigger for scheduling engine.
 
-### prismquanta_interface
+### quantaporto_interface
 - **Objective**: Compiled binary for polling-based engine.
 - **Tasks**:
   - Schedule pipeline runs via prompts and timeout logic.
@@ -222,7 +222,7 @@ This plan organizes tasks by directory and function, enabling modular implementa
   - Synchronize with `docs/README.md`.
 - **Output**: User-facing overview.
 
-# PrismQuanta Development Priorities
+# QuantaPorto Development Priorities
 
 This document outlines the development roadmap, ordered by priority.
 
@@ -242,7 +242,7 @@ These tasks are essential for a minimum viable product.
     -   This script will be the primary input for `run_llm.sh`.
 
 ## P2: Rule & Consequence Engine
-These tasks implement the unique cognitive-shaping features of PrismQuanta.
+These tasks implement the unique cognitive-shaping features of QuantaPorto.
 
 3.  **Define Initial Rule Set (`rules/rules.xml`):**
     -   Finalize the XML structure for rules, conditions, and consequences.
@@ -293,7 +293,7 @@ This section lists possible enhancements to the code analysis script.
 
 ## C++ Daemon Design
 
-The C++ daemon is the core component of the PrismQuanta system. It is responsible for orchestrating the entire workflow, from parsing PQL commands to enforcing rules and managing the LLM lifecycle.
+The C++ daemon is the core component of the QuantaPorto system. It is responsible for orchestrating the entire workflow, from parsing PQL commands to enforcing rules and managing the LLM lifecycle.
 
 ### Components
 
@@ -356,7 +356,7 @@ The daemon will be designed with the following principles in mind to ensure it i
     *   A maximum number of retries will be configured for the reflection loop. If the LLM fails to produce a valid response after the maximum number of retries, the task will be marked as failed and the daemon will move on to the next task.
 
 *   **Start/Stop/Monitor:**
-    *   The daemon will be easy to start and stop using standard system commands (e.g., `systemctl start prismquanta`, `systemctl stop prismquanta`).
+    *   The daemon will be easy to start and stop using standard system commands (e.g., `systemctl start quantaporto`, `systemctl stop quantaporto`).
     *   It will provide a clear and concise logging output that can be used to monitor its status and diagnose problems.
     *   A separate monitoring process will be implemented to watch the daemon and restart it if it crashes.
 

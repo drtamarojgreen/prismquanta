@@ -1,5 +1,5 @@
 #!/bin/bash
-# test_gemini.sh - A non-destructive demonstration script for PrismQuanta.
+# test_gemini.sh - A non-destructive demonstration script for QuantaPorto.
 # This script ONLY runs existing components and shows how they APPEND to log files.
 # It does not create, overwrite, or delete any files.
 

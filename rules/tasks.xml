@@ -2,7 +2,7 @@
 <tasks xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="pql.xsd">
   
-  <task id="summarize-prismquanta">
+  <task id="summarize-quantaporto">
     <description>Summarize the following technical document.</description>
     <commands>
       <command>Read the provided document content.</command>
@@ -30,8 +30,8 @@
 
   <!-- Tasks generated from docs/plan.md -->
 
-  <task id="implement-prismquanta-interface">
-    <description>Implement the C++ scheduler and command interface for Bash-driven LLM workflows in interface/prismquanta_interface.cpp.</description>
+  <task id="implement-quantaporto-interface">
+    <description>Implement the C++ scheduler and command interface for Bash-driven LLM workflows in interface/quantaporto_interface.cpp.</description>
     <commands>
       <command>Implement logic to load rules from rules.txt and priorities from priorities.txt.</command>
       <command>Implement command-line argument parsing for --execute, --list-tasks, and --get-reward-task.</command>
@@ -47,7 +47,7 @@
   </task>
 
   <task id="create-cpp-makefile">
-    <description>Create a Makefile in the interface/ directory to build the prismquanta_interface executable.</description>
+    <description>Create a Makefile in the interface/ directory to build the quantaporto_interface executable.</description>
     <commands>
       <command>Define the C++ compiler and flags.</command>
       <command>Create a default 'all' target to build the executable.</command>
@@ -55,7 +55,7 @@
       <command>Create an 'install' target to copy the executable to a bin/ directory.</command>
     </commands>
     <criteria>
-      <criterion>`make all` must successfully compile prismquanta_interface.cpp into an executable named `prismquanta_interface`.</criterion>
+      <criterion>`make all` must successfully compile quantaporto_interface.cpp into an executable named `quantaporto_interface`.</criterion>
       <criterion>`make clean` must remove all generated build artifacts.</criterion>
       <criterion>`make install` must place the executable in the project's bin/ directory.</criterion>
     </criteria>
@@ -65,12 +65,12 @@
     <description>Develop the scripts/run_task.sh script to execute a specific task by its ID.</description>
     <commands>
       <command>The script must accept a single argument: the task ID.</command>
-      <command>Call the `prismquanta_interface --execute &lt;task_id&gt;` command with the provided ID.</command>
+      <command>Call the `quantaporto_interface --execute &lt;task_id&gt;` command with the provided ID.</command>
       <command>Capture and log the standard output and standard error of the execution.</command>
       <command>Exit with a non-zero status if the task ID is not provided or if the interface returns an error.</command>
     </commands>
     <criteria>
-      <criterion>Running `scripts/run_task.sh my-task` must invoke `./bin/prismquanta_interface --execute my-task`.</criterion>
+      <criterion>Running `scripts/run_task.sh my-task` must invoke `./bin/quantaporto_interface --execute my-task`.</criterion>
       <criterion>The script must handle missing arguments with a user-friendly error message.</criterion>
     </criteria>
   </task>
@@ -78,7 +78,7 @@
   <task id="implement-get-reward-script">
     <description>Develop the scripts/get_reward.sh script to fetch and execute a reward task.</description>
     <commands>
-      <command>Call the `prismquanta_interface --get-reward-task` command.</command>
+      <command>Call the `quantaporto_interface --get-reward-task` command.</command>
       <command>Parse the output to get the reward task ID.</command>
       <command>Call `scripts/run_task.sh` with the retrieved reward task ID.</command>
       <command>Integrate this script into pql_test_and_reward.sh as the reward mechanism.</command>
@@ -92,7 +92,7 @@
   <task id="implement-list-tasks-script">
     <description>Develop the scripts/list_tasks.sh script to display all available tasks.</description>
     <commands>
-      <command>Call the `prismquanta_interface --list-tasks` command.</command>
+      <command>Call the `quantaporto_interface --list-tasks` command.</command>
       <command>Display the formatted output from the C++ interface to the user's console.</command>
     </commands>
     <criteria>

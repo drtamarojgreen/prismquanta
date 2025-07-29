@@ -191,7 +191,7 @@ void Scheduler::run() {
 // --- main ---
 
 int main() {
-    std::cout << "PrismQuanta Daemon Initializing..." << std::endl;
+    std::cout << "QuantaPorto Daemon Initializing..." << std::endl;
 
     Config config;
     if (!config.load("/app/environment.txt")) {

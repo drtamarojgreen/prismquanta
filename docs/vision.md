@@ -1,4 +1,4 @@
-# PrismQuanta — Original Vision
+# QuantaPorto — Original Vision
 
 ## Mission
 
@@ -19,7 +19,7 @@ To create a lightweight, local-first agent architecture that empowers users to r
    File-based modularity enables robust task pipelines.
 
 4. **Local‑first Alignment and Reasoning**  
-   Support local LLMs via llama.cpp / PrismQuanta CLI scripts. Clearly annotated system prompts uphold ethical guardrails.  
+   Support local LLMs via llama.cpp / QuantaPorto CLI scripts. Clearly annotated system prompts uphold ethical guardrails.
    Behavior is determined by configurable policy files (rules, ethics, bias patterns).
 
 5. **Extendability**  

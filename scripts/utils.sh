@@ -1,5 +1,5 @@
 #!/bin/bash
-# utils.sh - Common utility functions for PrismQuanta scripts
+# utils.sh - Common utility functions for QuantaPorto scripts
 
 # --- Environment Setup ---
 
@@ -20,7 +20,7 @@ setup_env() {
     fi
  
     # Define a standard environment script path
-    local env_script="/tmp/prismquanta_env.sh"
+    local env_script="/tmp/quantaporto_env.sh"
  
     # Generate the environment file
     "$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$env_script" "$PRISM_QUANTA_ROOT"

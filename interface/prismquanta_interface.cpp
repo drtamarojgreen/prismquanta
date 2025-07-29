@@ -1,6 +1,6 @@
-// prismquanta_interface.cpp
-// PrismQuanta - Offline Autonomous LLM Scheduler with Logging
-// This C++ application acts as a high-level task scheduler for the PrismQuanta framework.
+// quantaporto_interface.cpp
+// QuantaPorto - Offline Autonomous LLM Scheduler with Logging
+// This C++ application acts as a high-level task scheduler for the QuantaPorto framework.
 // It operates in a continuous loop, polling for tasks, checking for timeouts, and
 // executing the LLM pipeline via shell scripts.
 
@@ -172,7 +172,7 @@ void run_pipeline() {
     write_log("Running pipeline script...");
     // TODO: Replace this with a dynamic command.
     // Example of a future, more dynamic command:
-    // std::string command = "echo 'Document content...' | ./scripts/generate_prompt.sh summarize-prismquanta | ./scripts/run_llm.sh";
+    // std::string command = "echo 'Document content...' | ./scripts/generate_prompt.sh summarize-quantaporto | ./scripts/run_llm.sh";
     int status = std::system(("bash scripts/run_task.sh " + PROMPT_FILE).c_str());
     if (status != 0) {
         write_log("Pipeline execution failed. Exit code: " + std::to_string(status));
@@ -195,7 +195,7 @@ int main() {
     const int POLL_INTERVAL_SEC = std::stoi(config["POLL_INTERVAL_SEC"]);
     const int TIMEOUT_DURATION_SEC = std::stoi(config["TIMEOUT_DURATION_SEC"]);
 
-    std::cout << "PrismQuanta Task Manager Initialized.\n";
+    std::cout << "QuantaPorto Task Manager Initialized.\n";
     write_log("Interface startup initiated.");
 
     // NOTE: The loaded rules and priorities are not currently used in the main loop.

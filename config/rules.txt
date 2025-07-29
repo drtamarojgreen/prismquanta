@@ -1,4 +1,4 @@
-# Rule Enforcement Configuration for PrismQuanta
+# Rule Enforcement Configuration for QuantaPorto
 #
 # This file defines enforcement logic for rule violations.
 # The C++ interface loads and parses this file to match against

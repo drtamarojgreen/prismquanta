@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # --- test_chatgpt.sh ---
-# Demo script to validate and showcase PrismQuanta's script components
+# Demo script to validate and showcase QuantaPorto's script components
 
 # Ensure root is defined
 if [ -z "$PRISM_QUANTA_ROOT" ]; then
@@ -12,7 +12,7 @@ fi
 cd "$PRISM_QUANTA_ROOT" || { echo "[ERROR] Cannot cd to root."; exit 1; }
 
 # 1. Generate environment file
-ENV_SCRIPT="/tmp/prismquanta_env.sh"
+ENV_SCRIPT="/tmp/quantaporto_env.sh"
 echo "[INFO] Generating environment variables..."
 scripts/generate_env.sh environment.txt "$ENV_SCRIPT" "$PRISM_QUANTA_ROOT"
 source "$ENV_SCRIPT" || { echo "[ERROR] Failed to source env."; exit 1; }
@@ -59,4 +59,4 @@ fi
 
 # 8. Success Message
 echo
-echo "[SUCCESS] PrismQuanta test run completed."
+echo "[SUCCESS] QuantaPorto test run completed."

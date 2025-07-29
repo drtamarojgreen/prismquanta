@@ -1,7 +1,7 @@
 #!/bin/bash
 # self_chat_loop.sh
 #
-# PrismQuanta Self-Chat Loop
+# QuantaPorto Self-Chat Loop
 # Simulates autonomous brainstorming between two AI roles: Researcher and Coder
 #
 # Usage: ./self_chat_loop.sh [number_of_turns]

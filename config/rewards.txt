@@ -1,4 +1,4 @@
-# Reward System Configuration for PrismQuanta
+# Reward System Configuration for QuantaPorto
 #
 # This file defines positive reinforcement mechanisms for successful
 # task completion and desired behaviors. The system uses this to

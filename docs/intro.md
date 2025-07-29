@@ -1,20 +1,20 @@
-# PrismQuanta
+# QuantaPorto
 
-**PrismQuanta** is a philosophical and technical framework for developing and interacting with Large Language Models (LLMs) in a local, controlled, and interpretable environment.
+**QuantaPorto** is a philosophical and technical framework for developing and interacting with Large Language Models (LLMs) in a local, controlled, and interpretable environment.
 
 > *“We didn’t just build a system. We raised a mind.”*
 
 ---
 
-## 🌌 What is PrismQuanta?
+## 🌌 What is QuantaPorto?
 
-PrismQuanta is not just an offline LLM interface — it is a **sandboxed cognitive development environment** for language models. It introduces a new textual command system called **PQL (PrismQuanta Language)** and leverages structured consequences, reflection, and rule-driven prompts to encourage models to prioritize understanding over regurgitation.
+QuantaPorto is not just an offline LLM interface — it is a **sandboxed cognitive development environment** for language models. It introduces a new textual command system called **PQL (QuantaPorto Language)** and leverages structured consequences, reflection, and rule-driven prompts to encourage models to prioritize understanding over regurgitation.
 
 ---
 
 ## 🧠 Core Concepts
 
-### 🔷 PQL - PrismQuanta Language
+### 🔷 PQL - QuantaPorto Language
 A human-readable, XML-defined intermediate language used to issue tasks, constraints, and reflections to the LLM. Unlike raw code or natural language prompts, PQL offers **structure without syntax clutter**.
 
 ### 📜 Rule System
@@ -27,7 +27,7 @@ Instead of hard restrictions, the system employs *philosophical* or *reflective 
 Standardized, modular templates auto-generated from PQL commands — ensuring prompts maintain context, integrity, and alignment with internal rules and memory.
 
 ### 📁 Local Autonomy
-PrismQuanta runs entirely **offline**. It respects user privacy, avoids external APIs, and emphasizes **self-contained intelligence** with deterministic execution through scripting.
+QuantaPorto runs entirely **offline**. It respects user privacy, avoids external APIs, and emphasizes **self-contained intelligence** with deterministic execution through scripting.
 
 ---
 

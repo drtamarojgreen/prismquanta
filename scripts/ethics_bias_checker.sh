@@ -1,6 +1,6 @@
 #!/bin/bash
 # ethics_bias_checker.sh - Advanced ethics and bias detection system
-# Integrates into the PrismQuanta pipeline for real-time monitoring
+# Integrates into the QuantaPorto pipeline for real-time monitoring
 
 set -euo pipefail
 IFS=$'\n\t'

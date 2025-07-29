@@ -1,5 +1,5 @@
 #!/bin/bash
-# PrismQuanta - Unit Test Runner
+# QuantaPorto - Unit Test Runner
 
 set -e
 RED='\033[0;31m'
@@ -134,8 +134,8 @@ test_config_files() {
 
 # 10. Test interface compilation
 test_interface_compilation() {
-  if [ -f "../interface/prismquanta_interface.cpp" ]; then
-    if g++ -o /tmp/test_interface ../interface/prismquanta_interface.cpp 2>/dev/null; then
+  if [ -f "../interface/quantaporto_interface.cpp" ]; then
+    if g++ -o /tmp/test_interface ../interface/quantaporto_interface.cpp 2>/dev/null; then
       log_pass "Interface compilation successful."
       rm -f /tmp/test_interface
     else
@@ -310,7 +310,7 @@ test_pql_samples() {
 }
 
 # Run all tests
-echo "🔧 Running PrismQuanta Tests..."
+echo "🔧 Running QuantaPorto Tests..."
 test_rulebook_validation
 test_pql_schema_validation
 test_template_output

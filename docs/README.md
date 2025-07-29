@@ -1,13 +1,13 @@
-# PrismQuanta
+# QuantaPorto
 
-**PrismQuanta** is a sandboxed offline LLM interface and reflective execution engine designed to help large language models operate under guided instruction sets, simulated consequence logic, and test-driven behavior. It is written primarily in Bash and uses XML-based rule and prompt definitions.
+**QuantaPorto** is a sandboxed offline LLM interface and reflective execution engine designed to help large language models operate under guided instruction sets, simulated consequence logic, and test-driven behavior. It is written primarily in Bash and uses XML-based rule and prompt definitions.
 
 ## 🔍 Project Goals
 
 - Provide a lightweight framework for working with offline LLMs
 - Define and enforce **rules** through a structured XML format
 - Establish **consequence logic** to redirect LLM behavior
-- Create a human-readable, symbolic command language: **PrismQuanta Language (PQL)**
+- Create a human-readable, symbolic command language: **QuantaPorto Language (PQL)**
 - Foster reflective response pipelines (review > revise > respond)
 - Promote ethical AI by actively identifying and mitigating bias. See [AI Ethics and Bias Mitigation](ethics.md) for more details.
 
@@ -16,14 +16,14 @@
 ## 📁 Repository Structure
 
 ```
-prismquanta/
+quantaporto/
 ├── config/
 │   ├── priorities.txt
 │   └── rules.txt
 ├── docs/
 │   └── README.md
 ├── interface/
-│   └── prismquanta_interface.cpp
+│   └── quantaporto_interface.cpp
 ├── memory/
 │   ├── development_lessons.txt
 │   └── test.txt
@@ -49,13 +49,13 @@ prismquanta/
 │   └── validation_loop.sh
 ├── .timeout
 ├── main
-├── prismquanta_interface
+├── quantaporto_interface
 └── README.md
 ```
 
 ---
 
-## 📐 PrismQuanta Language (PQL)
+## 📐 QuantaPorto Language (PQL)
 
 PQL is a simplified, structured text-based command language used to guide LLM behavior.
 

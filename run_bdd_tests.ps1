@@ -1,6 +1,6 @@
-# PowerShell BDD Test Runner for PrismQuanta
+# PowerShell BDD Test Runner for QuantaPorto
 
-Write-Host "Running PrismQuanta BDD Tests..." -ForegroundColor Green
+Write-Host "Running QuantaPorto BDD Tests..." -ForegroundColor Green
 
 # Change to BDD test directory
 Set-Location "tests\bdd"

@@ -1,6 +1,6 @@
 Feature: Ethics and Bias Pipeline Integration
 
-  As a PrismQuanta system administrator
+  As a QuantaPorto system administrator
   I want ethics and bias checking integrated into the task processing pipeline
   So that all AI outputs are automatically screened for ethical compliance
 
