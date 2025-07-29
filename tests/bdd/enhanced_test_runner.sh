@@ -223,46 +223,37 @@ process_scenario() {
 
 # Execute a single step
 execute_step() {
-    local step="$1"
+    local step_text="$1"
     local step_number="$2"
-    
-    # Convert step text to function name
-    local function_name
-    function_name=$(convert_step_to_function "$step")
-    
+
     if [[ "$VERBOSE" == "true" ]]; then
-        echo "  Step $step_number: $step"
+        echo "  Step $step_number: $step_text"
     fi
-    
-    # Check if function exists
+
+    # 1. Generate function name by stripping keywords and arguments in quotes
+    local function_name
+    function_name="step_$(echo "$step_text" | sed -E 's/^\s*(Given|When|Then|And|But)\s*//' | sed -E 's/\s*".*?"//g' | tr '[:upper:]' '[:lower:]' | tr -s '[:space:]' '_' | sed 's/[^a-z0-9_]//g')"
+
+    # 2. Extract arguments from quoted strings
+    local args=()
+    while IFS= read -r -d '' arg; do
+        args+=("$arg")
+    done < <(echo "$step_text" | grep -o '".*?"' | tr -d '"' | tr '\n' '\0')
+
+    # 3. Check if function exists
     if ! declare -f "$function_name" > /dev/null; then
-        echo -e "${YELLOW}Warning: Step definition not found for: $step${NC}"
+        echo -e "${YELLOW}Warning: Step definition not found for: $step_text${NC}"
         echo -e "${YELLOW}Expected function: $function_name${NC}"
         return 1
     fi
-    
-    # Execute the step function
-    if ! "$function_name"; then
-        echo -e "${RED}Step failed: $step${NC}"
+
+    # 4. Execute the step function with its arguments
+    if ! "$function_name" "${args[@]}"; then
+        echo -e "${RED}Step failed: $step_text${NC}"
         return 1
     fi
-    
-    return 0
-}
 
-# Convert step text to function name
-convert_step_to_function() {
-    local step="$1"
-    
-    # Remove leading/trailing whitespace and step keywords
-    step=$(echo "$step" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
-    step=$(echo "$step" | sed -e 's/^Given[[:space:]]*//' -e 's/^When[[:space:]]*//' -e 's/^Then[[:space:]]*//' -e 's/^And[[:space:]]*//' -e 's/^But[[:space:]]*//') 
-    
-    # Convert to function name format
-    step=$(echo "$step" | tr '[:upper:]' '[:lower:]')
-    step=$(echo "$step" | sed -e 's/[^a-z0-9]/_/g' -e 's/__*/_/g' -e 's/^_//' -e 's/_$//')
-    
-    echo "$step"
+    return 0
 }
 
 # Run tests in parallel
