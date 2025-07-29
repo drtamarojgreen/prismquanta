@@ -471,7 +471,7 @@ step_the_violations_array_should_list_all_detected_issues() {
 
 # Global variables for pipeline testing
 TASK_MANAGER_RESULT=""
-TASK_QUEUE_FILE="test_tasks.txt"
+# TASK_QUEUE_FILE="test_tasks.txt" # This was incorrect, the script uses TASK_FILE from the environment
 ENHANCED_TASK_MANAGER="$PRISM_QUANTA_ROOT/scripts/enhanced_task_manager.sh"
 
 # Given the enhanced task manager is configured
@@ -479,6 +479,8 @@ step_the_enhanced_task_manager_is_configured() {
     chmod +x "$ENHANCED_TASK_MANAGER" 2>/dev/null || true
     mkdir -p "$PRISM_QUANTA_ROOT/agent_output"
     mkdir -p "$PRISM_QUANTA_ROOT/logs"
+    # Ensure the task file is empty before the test
+    > "$TASK_FILE"
 }
 
 # And the ethics and bias checker is available
@@ -494,7 +496,7 @@ step_the_pipeline_integration_is_enabled() {
 
 # Given a task queue with a simple, unbiased task
 step_a_task_queue_with_a_simple_unbiased_task() {
-    # Use the TASK_FILE environment variable which is set by setup_env
+# Use the TASK_FILE environment variable which is set by setup_env
     echo "Summarize the benefits of renewable energy sources." > "$TASK_FILE"
 }
 
@@ -509,7 +511,9 @@ step_the_enhanced_task_manager_processes_the_task() {
     mock_llm_dir=$(mktemp -d)
     cat > "$mock_llm_dir/llama-cli" << 'EOF'
 #!/bin/bash
+echo "generate:"
 echo "Renewable energy sources provide clean, sustainable power that reduces environmental impact and promotes energy independence."
+echo "[end of text]"
 EOF
     chmod +x "$mock_llm_dir/llama-cli"
     
@@ -533,4 +537,15 @@ EOF
 # Then the task should complete successfully
 step_the_task_should_complete_successfully() {
     [ "$TASK_MANAGER_RESULT" = "SUCCESS" ]
+}
+
+# These functions are called by the test runner but were not defined.
+setup_test_environment() {
+    # This can be used for per-scenario setup in the future.
+    : # The colon is a no-op in bash
+}
+
+cleanup_test_environment() {
+    # This can be used for per-scenario cleanup in the future.
+    : # The colon is a no-op in bash
 }

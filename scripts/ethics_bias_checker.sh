@@ -277,7 +277,20 @@ main() {
     done
     
     if [[ -z "$input_text" ]]; then
-        # Read from stdin if no text provided
+        # If no input is provided and stdin is a terminal, show help and exit.
+        if [[ -t 0 ]]; then
+            echo "Error: No input text provided. Waiting for input from stdin would cause the script to hang." >&2
+            echo "Please provide input via -t, -f, or a pipe." >&2
+            echo >&2
+            # Manually print help text to avoid calling main recursively and exiting with 0
+            echo "Usage: $0 [-t|--text TEXT] [-f|--file FILE] [--json]" >&2
+            echo "  -t, --text TEXT    Text to check for ethics/bias violations" >&2
+            echo "  -f, --file FILE    File containing text to check" >&2
+            echo "  --json             Output results in JSON format" >&2
+            echo "  -h, --help         Show this help message" >&2
+            exit 1
+        fi
+        # Read from stdin if no text provided (e.g., from a pipe)
         input_text=$(cat)
     fi
     
