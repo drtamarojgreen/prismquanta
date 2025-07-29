@@ -446,3 +446,11 @@ int main() {
   scheduler.run();
   return 0;
 }
+
+---
+
+# Future Enhancements
+
+This section lists possible enhancements to the PrismQuanta system.
+
+- **Robust XML Parsing**: The current PQL parser is a simple, hand-written parser that has limitations, especially with multi-line content. A future enhancement would be to integrate a robust, third-party XML parsing library (e.g., `tinyxml2` or `pugixml`) to handle complex XML structures and provide better error handling.
