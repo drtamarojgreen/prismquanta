@@ -16,7 +16,11 @@ setup_env
 # We assume a standard name for the system prompt.
 SYSTEM_PROMPT_FILE="$PRISM_QUANTA_ROOT/prompts/system_prompt.txt"
 USER_PROMPT_FILE="$PRISM_QUANTA_ROOT/$PROMPT_FILE"
-INFER_SCRIPT="$PRISM_QUANTA_ROOT/$LLM_INFER_SCRIPT"
+
+# Model and executable paths are now expected to be absolute paths defined in environment.txt
+# and are no longer relative to the project root.
+MODEL_FILE_FULL_PATH="$MODEL_DIRECTORY/$MODEL_FILENAME"
+INFER_EXECUTABLE="$LLAMACPP_PATH/$LLM_NAME"
 
 # Colors for output
 BLUE='\033[0;34m'
@@ -40,15 +44,15 @@ main() {
         echo "This path is configured in environment.txt (PROMPT_FILE)."
         all_ok=false
     fi
-    if [[ ! -f "$INFER_SCRIPT" ]]; then
-        echo -e "${RED}Error: Inference script not found at: $INFER_SCRIPT${NC}"
+    if [[ ! -f "$INFER_EXECUTABLE" ]]; then
+        echo -e "${RED}Error: Inference executable not found at: $INFER_EXECUTABLE${NC}"
         all_ok=false
-    elif [[ ! -x "$INFER_SCRIPT" ]]; then
-        echo -e "${RED}Error: Inference script is not executable: $INFER_SCRIPT${NC}"
+    elif [[ ! -x "$INFER_EXECUTABLE" ]]; then
+        echo -e "${RED}Error: Inference executable is not executable: $INFER_EXECUTABLE${NC}"
         all_ok=false
     fi
-    if [[ ! -f "$PRISM_QUANTA_ROOT/$MODEL_PATH" ]]; then
-        echo -e "${RED}Error: Model file not found at: $PRISM_QUANTA_ROOT/$MODEL_PATH${NC}"
+    if [[ ! -f "$MODEL_FILE_FULL_PATH" ]]; then
+        echo -e "${RED}Error: Model file not found at: $MODEL_FILE_FULL_PATH${NC}"
         all_ok=false
     fi
 
@@ -60,15 +64,17 @@ main() {
     # --- Execution ---
     echo "Loading system prompt from: $SYSTEM_PROMPT_FILE"
     echo "Loading user prompt from:   $USER_PROMPT_FILE"
-    echo "Using model:                $MODEL_PATH"
-    echo "Using inference script:     $LLM_INFER_SCRIPT"
+    echo "Using model:                $MODEL_DIRECTORY/$MODEL_FILENAME"
+    echo "Using inference executable: $INFER_EXECUTABLE"
     echo
     echo -e "${BLUE}--- Sending Prompts to Model ---${NC}"
 
     echo "--- Model Response ---"
-    # Execute the inference script, passing the system and user prompt files as arguments.
-    # This assumes llm_infer.sh is designed to accept these two files.
-    "$INFER_SCRIPT" "$SYSTEM_PROMPT_FILE" "$USER_PROMPT_FILE"
+    # Execute the llama-cli executable with the appropriate arguments.
+    "$INFER_EXECUTABLE" \
+        -m "$MODEL_FILE_FULL_PATH" \
+        --system-prompt-file "$SYSTEM_PROMPT_FILE" \
+        -f "$USER_PROMPT_FILE"
 
     echo
     echo -e "${GREEN}--- Model Configuration Test Complete ---${NC}"

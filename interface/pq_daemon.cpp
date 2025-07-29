@@ -1,28 +1,14 @@
+#include "pq_daemon.h"
+#include "Config.h"
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <vector>
 #include <sstream>
 #include <algorithm>
-
-// --- Data Structures ---
-
-struct PQLTask {
-    std::string id;
-    std::string type;
-    std::string priority;
-    std::string status;
-    std::string created;
-    std::string description;
-    std::vector<std::string> commands;
-    std::vector<std::string> criteria;
-    std::string notes;
-};
 
 // --- PQL Parser ---
 
 // Helper function to trim leading/trailing whitespace
-std::string trim(const std::string& str) {
+static std::string trim(const std::string& str) {
     const std::string whitespace = " \t\n\r\f\v";
     size_t first = str.find_first_not_of(whitespace);
     if (std::string::npos == first) {
@@ -33,7 +19,7 @@ std::string trim(const std::string& str) {
 }
 
 // Helper function to extract content from a tag
-std::string get_tag_content(const std::string& xml, const std::string& tag, size_t& pos) {
+static std::string get_tag_content(const std::string& xml, const std::string& tag, size_t& pos) {
     std::string start_tag = "<" + tag + ">";
     std::string end_tag = "</" + tag + ">";
     size_t start = xml.find(start_tag, pos);
@@ -50,7 +36,7 @@ std::string get_tag_content(const std::string& xml, const std::string& tag, size
 }
 
 // Helper function to extract content from all occurrences of a tag
-std::vector<std::string> get_all_tag_contents(const std::string& xml, const std::string& tag) {
+static std::vector<std::string> get_all_tag_contents(const std::string& xml, const std::string& tag) {
     std::vector<std::string> contents;
     std::string start_tag = "<" + tag + ">";
     std::string end_tag = "</" + tag + ">";
@@ -67,7 +53,8 @@ std::vector<std::string> get_all_tag_contents(const std::string& xml, const std:
     return contents;
 }
 
-std::vector<PQLTask> parse_pql(const std::string& filename) {
+
+std::vector<PQLTask> PQLParser::parse(const std::string& filename) {
     std::vector<PQLTask> tasks;
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -131,7 +118,7 @@ std::vector<PQLTask> parse_pql(const std::string& filename) {
 
 // --- Prompt Generator ---
 
-std::string generate_prompt(const PQLTask& task) {
+std::string PromptGenerator::generate(const PQLTask& task) {
     std::stringstream prompt;
     prompt << "Task: " << task.description << std::endl;
     prompt << "Commands:" << std::endl;
@@ -147,7 +134,7 @@ std::string generate_prompt(const PQLTask& task) {
 
 // --- LLM Runner (Placeholder) ---
 
-std::string run_llm(const std::string& prompt) {
+std::string LLMRunner::run(const std::string& prompt) {
     std::cout << "--- Running LLM with prompt ---" << std::endl;
     std::cout << prompt << std::endl;
     std::cout << "--- End of prompt ---" << std::endl;
@@ -156,7 +143,7 @@ std::string run_llm(const std::string& prompt) {
 
 // --- Rule Engine (Placeholder) ---
 
-bool evaluate_rules(const std::string& response) {
+bool RuleEngine::evaluate(const std::string& response) {
     std::cout << "Evaluating rules for response: " << response << std::endl;
     // In a real implementation, this would parse rules.xml and check the response.
     return true; // Placeholder, always passes.
@@ -164,30 +151,36 @@ bool evaluate_rules(const std::string& response) {
 
 // --- Reflection Engine (Placeholder) ---
 
-std::string reflect(const std::string& failed_response) {
+std::string ReflectionEngine::reflect(const std::string& failed_response) {
     std::cout << "Reflecting on failed response: " << failed_response << std::endl;
     return "This is a new prompt after reflection.";
 }
 
 // --- Scheduler ---
 
-void run_scheduler() {
-    std::vector<PQLTask> tasks = parse_pql("../rules/pql_sample.xml");
+void Scheduler::run() {
+    PQLParser parser;
+    std::vector<PQLTask> tasks = parser.parse("/app/rules/pql_sample.xml");
     if (tasks.empty()) {
         std::cout << "No tasks to process." << std::endl;
         return;
     }
 
+    PromptGenerator prompt_generator;
+    LLMRunner llm_runner;
+    RuleEngine rule_engine;
+    ReflectionEngine reflection_engine;
+
     for (const auto& task : tasks) {
         std::cout << "--- Starting task: " << task.id << " ---" << std::endl;
-        std::string prompt = generate_prompt(task);
-        std::string response = run_llm(prompt);
-        if (evaluate_rules(response)) {
+        std::string prompt = prompt_generator.generate(task);
+        std::string response = llm_runner.run(prompt);
+        if (rule_engine.evaluate(response)) {
             std::cout << "Task " << task.id << " completed successfully." << std::endl;
         } else {
             std::cout << "Task " << task.id << " failed. Reflecting..." << std::endl;
-            std::string new_prompt = reflect(response);
-            response = run_llm(new_prompt);
+            std::string new_prompt = reflection_engine.reflect(response);
+            response = llm_runner.run(new_prompt);
             // In a real implementation, we would have a retry loop here.
         }
         std::cout << "--- Finished task: " << task.id << " ---" << std::endl;
@@ -195,8 +188,20 @@ void run_scheduler() {
     }
 }
 
+// --- main ---
 
 int main() {
-    run_scheduler();
+    std::cout << "PrismQuanta Daemon Initializing..." << std::endl;
+
+    Config config;
+    if (!config.load("/app/environment.txt")) {
+        std::cerr << "Failed to load 'environment.txt'. Make sure the application is run from the project root directory." << std::endl;
+        return 1;
+    }
+    std::cout << "Configuration loaded successfully." << std::endl;
+
+    Scheduler scheduler;
+    scheduler.run();
+
     return 0;
 }

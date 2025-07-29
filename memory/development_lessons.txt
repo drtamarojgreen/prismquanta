@@ -62,10 +62,3 @@ The incident highlights the need for a more robust dependency management strateg
 2.  **Automated Dependency Checks:** A pre-commit hook or a CI/CD pipeline step will be implemented to check for the introduction of new, undeclared dependencies. This can be done by scanning for commands that are not part of a pre-approved whitelist.
 3.  **Developer Education:** All developers will be reminded of the project's policy on external dependencies and the importance of adhering to it.
 
-[LESSON LEARNED]
-Date: 2025-07-28 20:09:00
-Topic: Committing Binary Files
-Occurrence:
-A compiled binary file (`interface/prismquanta_daemon`) was accidentally included in a commit. This is against best practices as binary files can bloat the repository size and cause issues with version control.
-Remediation:
-The binary file was removed from the commit. To prevent this in the future, a `.gitignore` file should be created to explicitly ignore compiled binaries and other build artifacts. This will ensure that these files are not accidentally committed to the repository.
