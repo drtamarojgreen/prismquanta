@@ -494,7 +494,8 @@ step_the_pipeline_integration_is_enabled() {
 
 # Given a task queue with a simple, unbiased task
 step_a_task_queue_with_a_simple_unbiased_task() {
-    echo "Summarize the benefits of renewable energy sources." > "$TASK_QUEUE_FILE"
+    # Use the TASK_FILE environment variable which is set by setup_env
+    echo "Summarize the benefits of renewable energy sources." > "$TASK_FILE"
 }
 
 # When the enhanced task manager processes the task
