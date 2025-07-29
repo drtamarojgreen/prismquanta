@@ -18,14 +18,6 @@ set(SOURCES
 )
 
 # Define the executable target for our application.
-#add_executable(prismquanta_interface ${SOURCES})
-
-# --- New Daemon ---
-add_executable(pq_daemon
-    pq_daemon.cpp
-    Config.cpp
-)
-
 add_executable(prismquanta_interface ${SOURCES})
 
 # --- Library Dependencies (Placeholders) ---
