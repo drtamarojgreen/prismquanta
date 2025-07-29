@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Gather all source and header files
 set(SOURCES
+    prismquanta_interface.cpp
     Config.cpp
 )
 
@@ -24,6 +25,8 @@ add_executable(pq_daemon
     pq_daemon.cpp
     Config.cpp
 )
+
+add_executable(prismquanta_interface ${SOURCES})
 
 # --- Library Dependencies (Placeholders) ---
 # As we build out the application, we will add library dependencies here.
