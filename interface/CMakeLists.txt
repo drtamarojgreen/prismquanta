@@ -11,12 +11,14 @@ project(PrismQuantaInterface CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Define the executable target for our application.
-# The first argument is the name of the executable that will be built.
-# Subsequent arguments are the source files to compile.
-add_executable(prismquanta_interface
-    main.cpp
+# Gather all source and header files
+set(SOURCES
+    prismquanta_interface.cpp
+    Config.cpp
 )
+
+# Define the executable target for our application.
+add_executable(prismquanta_interface ${SOURCES})
 
 # --- Library Dependencies (Placeholders) ---
 # As we build out the application, we will add library dependencies here.
