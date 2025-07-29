@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/pq_daemon.dir/pq_daemon.cpp.o CMakeFiles/pq_daemon.dir/Config.cpp.o -o pq_daemon
