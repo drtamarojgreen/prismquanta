@@ -42,9 +42,23 @@ The incident was caught before submission, and the original `send_prompt.sh` was
 3.  **Clearer Communication:** When using mock scripts or other temporary test setups, it is crucial to clearly communicate the purpose and intended lifespan of these files. This will help prevent misunderstandings and ensure that temporary files are not mistaken for permanent changes.
 
 [LESSON LEARNED]
+
 Date: 2025-07-28 10:14:13
 Topic: Centralized Environment Variable for Project Root
 Occurrence:
 The `PRISM_QUANTA_ROOT` environment variable was introduced in commit `3cf5bb9241d968224baad1e4ce4479e77459ab37`. This commit added a standardized way to reference the project's root directory across various scripts, improving portability and maintainability. The variable is set in `setup_environment.sh`, `tests/bdd/enhanced_test_runner.sh`, `test_gemini.sh`, and `scripts/utils.sh`.
 Remediation:
 This was a positive change that improved the codebase. No remediation is necessary. This is a good practice to follow for future development.
+
+Date: 2025-07-28 10:13:00
+Topic: Implicit External Dependency Introduction
+
+Occurrence:
+A new requirement for the `xmlstarlet` command-line tool was added in commit `3cf5bb9241d968224baad1e4ce4479e77459ab37`. This tool was introduced in the `tests/bdd/enhanced_test_runner.sh` script to perform XML validation. However, the project's development guidelines state that no external libraries or tools should be installed. This introduced a dependency that was not part of the standard development environment, potentially causing CI/CD pipeline failures or issues for other developers.
+
+Remediation:
+The incident highlights the need for a more robust dependency management strategy. To prevent this in the future, the following steps will be taken:
+1.  **Explicit Dependency Declaration:** All external dependencies, including command-line tools, must be explicitly declared in a dedicated file (e.g., `requirements.txt` or a dedicated section in the `README.md`).
+2.  **Automated Dependency Checks:** A pre-commit hook or a CI/CD pipeline step will be implemented to check for the introduction of new, undeclared dependencies. This can be done by scanning for commands that are not part of a pre-approved whitelist.
+3.  **Developer Education:** All developers will be reminded of the project's policy on external dependencies and the importance of adhering to it.
+

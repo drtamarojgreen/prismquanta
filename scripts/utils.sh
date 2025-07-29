@@ -6,26 +6,29 @@
 # Sets up the environment for all scripts.
 # It determines the project root, generates the environment script, and sources it.
 setup_env() {
-    # If PRISM_QUANTA_ROOT is already set, do nothing.
-    if [[ -n "${PRISM_QUANTA_ROOT:-}" ]]; then
+    # If the environment has already been sourced in this shell, do nothing.
+    if [[ -n "${PRISM_QUANTA_ENV_SOURCED:-}" ]]; then
         return
     fi
-
-    # Determine project root relative to the script that calls this
-    local script_dir
-    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
-    PRISM_QUANTA_ROOT="$(cd "$script_dir/.." &>/dev/null && pwd)"
-    export PRISM_QUANTA_ROOT
-
+ 
+    # Determine project root if it's not already set.
+    if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
+        local script_dir
+        script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
+        PRISM_QUANTA_ROOT="$(cd "$script_dir/.." &>/dev/null && pwd)"
+        export PRISM_QUANTA_ROOT
+    fi
+ 
     # Define a standard environment script path
     local env_script="/tmp/prismquanta_env.sh"
-
+ 
     # Generate the environment file
     "$PRISM_QUANTA_ROOT/scripts/generate_env.sh" "$PRISM_QUANTA_ROOT/environment.txt" "$env_script" "$PRISM_QUANTA_ROOT"
-
+ 
     # Source the environment file
     # shellcheck source=/dev/null
     source "$env_script"
+    export PRISM_QUANTA_ENV_SOURCED=true
 }
 
 
