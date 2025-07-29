@@ -9,6 +9,11 @@ source "$(dirname "$0")/utils.sh"
 
 # Setup environment to get variables like CODE_ANALYSIS_REPORT_FILE
 setup_env
+
+# Provide a default for the report file if not set in the environment
+: "${CODE_ANALYSIS_REPORT_FILE:="memory/code_analysis_report.md"}"
+: "${PQL_TESTS_XML_FILE:="rules/pql_tests.xml"}"
+: "${ETHICS_AND_BIAS_TESTS_XML_FILE:="rules/ethics_and_bias_tests.xml"}"
  
 # Check for required dependencies for the enhanced analysis
 check_deps "git" "find" "grep" "wc" "stat"
@@ -146,6 +151,69 @@ analyze_todos() {
         } >> "$CODE_ANALYSIS_REPORT_FILE"
     fi
 }
+analyze_environment_only_references() {
+    log_info "Checking for files only referenced in environment.txt..."
+
+    {
+        echo "## Environment File Reference Analysis"
+        echo
+    } >> "$CODE_ANALYSIS_REPORT_FILE"
+
+    # A more robust way to extract file paths from environment.txt
+    # This looks for keys ending in _FILE or _PATH, then extracts the value.
+    # It handles spaces around the '=' and trims whitespace from the value.
+    local config_files
+    config_files=$(grep -E '^[^#]*(_FILE|_PATH)[[:space:]]*=' "$PRISM_QUANTA_ROOT/environment.txt" | \
+                   sed -e 's/.*=[[:space:]]*//' -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | \
+                   grep -v -E '^\.$' || true) # Exclude lines that are just a dot
+
+    if [[ -z "$config_files" ]]; then
+        {
+            echo "No file paths found in \`environment.txt\` to analyze."
+            echo
+            echo "---"
+        } >> "$CODE_ANALYSIS_REPORT_FILE"
+        return
+    fi
+
+    local lonely_files=""
+    local all_tracked_files
+    all_tracked_files=$(git ls-files)
+
+    for file_path in $config_files; do
+        # Ensure the file exists before checking for references
+        if [[ ! -f "$PRISM_QUANTA_ROOT/$file_path" ]]; then
+            continue
+        fi
+
+        local file_basename
+        file_basename=$(basename "$file_path")
+
+        # Search for the file's basename in all tracked files, excluding environment.txt
+        # We use the basename because it's the most likely way a file would be referenced in a script.
+        # The `grep -v` ensures we don't search in environment.txt itself.
+        # `xargs` handles the list of files to search in.
+        # `grep -Fq` searches for fixed strings quietly.
+        if ! echo "$all_tracked_files" | grep -v "environment.txt" | xargs -r --no-run-if-empty grep -Fq "$file_basename"; then
+            lonely_files+="- \`$file_path\`\n"
+        fi
+    done
+
+    if [[ -n "$lonely_files" ]]; then
+        {
+            echo "Found files that seem to be referenced only in \`environment.txt\`. These might be part of a deprecated feature or no longer in use:"
+            echo
+            echo -e "$lonely_files"
+        } >> "$CODE_ANALYSIS_REPORT_FILE"
+    else
+        {
+            echo "All file paths defined in \`environment.txt\` appear to be referenced elsewhere in the codebase."
+            echo
+        } >> "$CODE_ANALYSIS_REPORT_FILE"
+    fi
+
+    echo "---" >> "$CODE_ANALYSIS_REPORT_FILE"
+}
  
 # --- Main Execution ---
  
@@ -155,6 +223,7 @@ main() {
     analyze_docs_status
     analyze_orphaned_files
     analyze_todos
+    analyze_environment_only_references
     log_info "Code analysis complete. Report saved to: $CODE_ANALYSIS_REPORT_FILE"
 }
  
