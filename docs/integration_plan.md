@@ -278,3 +278,50 @@ The system must be designed for safe human oversight and intervention.
     -   List all tasks pending approval.
     -   View the content of the task and the proposed action.
     -   Approve (move to `/queue/pending`), Deny (move to `/queue/failed`), or Edit the task.
+
+## 10. Resource Management and System Efficiency
+
+To ensure the system remains stable and performant in constrained environments, a strict resource management strategy is essential.
+
+### Lightweight Process Management
+-   **On-Demand Execution:** The core principle is to run processes only when needed. `QuantaSensa`'s single-action-per-invocation model is the primary example.
+-   **Scheduled, Not Persistent, Daemons:** Resource-intensive analysis tasks, such as those performed by `QuantaGlia`, will not run as persistent daemons. Instead, they will be invoked periodically by a system scheduler like `cron`, perform their work, and exit.
+-   **Minimalist Tooling:** Monitoring tools like `QuantaAlarma` will be simple scripts that use efficient file-watching utilities (e.g., `tail -f` or `inotifywait`) rather than heavy, continuously polling loops.
+
+### LLM Inference Optimization
+-   **Model Specialization and Tiering:** The system will not rely on a single, monolithic LLM. Instead, it will use a tiered approach defined in `prismquanta.env`:
+    -   `ETHOS_MODEL_PATH`: A small, highly quantized model (e.g., 1.5B parameters, 4-bit quantization) for the frequent, low-latency validation checks in `QuantaEthos`.
+    -   `PORTO_MODEL_PATH`: A mid-sized model for `QuantaPorto`'s more complex task-to-script translation.
+    -   `GLIA_MODEL_PATH`: A larger, more capable model for `QuantaGlia`'s infrequent, high-level analysis and reasoning tasks.
+-   **Inference Caching:** `QuantaEthos` will implement a cache for validation decisions. Before invoking the LLM, it will compute a hash of the command string and check a local cache (e.g., a SQLite database). If a recent, non-expired decision exists, it will be returned immediately, dramatically reducing redundant computations.
+
+### Data Lifecycle and Pruning
+-   **Log Rotation:** A scheduled "janitor" script will manage the `events.jsonl` file. When the file exceeds a configured size (e.g., 100MB), it will be compressed and timestamped (e.g., `events-2023-10-27.jsonl.gz`), and a new, empty log file will be created.
+-   **Queue Archiving:** The same janitor script will periodically archive the contents of the `/queue/completed` and `/queue/failed` directories. Task results older than a configured retention period (e.g., 14 days) will be bundled into a compressed archive and removed from the active queue directories to prevent indefinite disk usage growth.
+
+## 11. Dependency and Environment Management
+
+A consistent and reproducible environment is key to operational efficiency and stability.
+
+### Centralized Configuration
+-   The `prismquanta.env` file is the **single source of truth** for all system paths, model locations, and key operational parameters (e.g., queue retention periods).
+-   All scripts and executables **must** source this file at startup to load their configuration. Hardcoding paths is strictly forbidden.
+
+### Reproducible Builds
+-   **Python:** Each Python component will have a `requirements.txt` file. The `build_all.sh` script will create a dedicated Python virtual environment (`venv`) for each component and install its specific dependencies, ensuring no cross-component dependency conflicts.
+-   **C++:** All C++ components will use `cmake`. The top-level build script will iterate through them, running a standard `cmake . && make` sequence and placing the final binaries into a central `${PRISMQUANTA_ROOT}/bin` directory.
+-   **Environment Validation:** A `check_system.sh` script will be provided. It will run before a full system start to verify that all required tools (`g++`, `python3`, `Rscript`), directories, models, and dependencies are present and correctly configured, preventing runtime failures due to setup issues.
+
+## 12. Security and Sandboxing Posture
+
+Efficient resource management is intrinsically linked to security. The system must prevent any single component from consuming excessive resources or performing unauthorized actions.
+
+### Principle of Least Privilege
+-   **Dedicated User:** All PrismQuanta components should run under a dedicated, low-privilege user account (e.g., `prismquanta`).
+-   **File Permissions:** The queue and log directories will have strict permissions. For example, the `QuantaSensa` process will only have write access to the `/actions` and `/queue/completed|failed` directories, but not to `/queue/pending`.
+
+### Execution Sandboxing for QuantaSensa
+The `QuantaSensa` C++ parent controller is the primary enforcement point for sandboxing and will apply resource limits *before* executing any action script.
+-   **Resource Limits (cgroups):** On Linux, the parent controller will use `cgroups` to create a transient slice for each action it executes. This will enforce hard caps on CPU usage (e.g., `CPUQuota=50%`) and memory (e.g., `MemoryMax=512M`), preventing a faulty script from destabilizing the host.
+-   **Filesystem Isolation (Namespaces):** The parent controller can use `mount` namespaces to provide the action script with a restricted view of the filesystem. It can create a temporary, private `/tmp` directory and only bind-mount the specific project directories the task needs to access.
+-   **Configuration Immutability:** Critical configuration files (e.g., `prismquanta.env`, `alarms.yaml`) will be owned by a root/admin user, with read-only permissions for the `prismquanta` user. This prevents an agent from modifying its own operational parameters or safety rules.
