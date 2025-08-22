@@ -1,6 +1,6 @@
 # QuantaPorto
 
-**This project has been closed and is no longer maintained. It will soon be available in a new repository.**
+**This project has been reopened and is now under active development.**
 
 ---
 
