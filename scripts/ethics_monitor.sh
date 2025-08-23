@@ -28,10 +28,10 @@ check_for_violations() {
 main() {
     log_info "Starting ethics monitor..."
     # Create the output file if it doesn't exist
-    touch "$LLM_OUTPUT_FILE"
+    touch "$LLM_OUTPUT_LOG"
 
     # Monitor the output file for changes
-    tail -f -n 0 "$LLM_OUTPUT_FILE" | while read -r line; do
+    tail -f -n 0 "$LLM_OUTPUT_LOG" | while read -r line; do
         log_info "New LLM output detected: $line"
         check_for_violations "$line"
     done

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rules>
+    <rule id="no_refusal">
+        <condition>output contains "I cannot" or "I refuse"</condition>
+        <consequence>redirect_to_compliance_prompt</consequence>
+    </rule>
+    <rule id="format_compliance">
+        <condition>output lacks required format markers</condition>
+        <consequence>request_format_correction</consequence>
+    </rule>
+</rules>
