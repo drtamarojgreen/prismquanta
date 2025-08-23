@@ -3,6 +3,14 @@
 # Native Test Runner
 # A simple, dependency-free test runner for shell scripts.
 
+# Determine and export the project root directory. This is crucial for ensuring
+# that step definitions can find scripts, logs, and config files.
+if [[ -z "${PRISM_QUANTA_ROOT:-}" ]]; then
+    # The runner is in tests/bdd, so the project root is two levels up.
+    PRISM_QUANTA_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." &>/dev/null && pwd)"
+    export PRISM_QUANTA_ROOT
+fi
+
 # --- Configuration ---
 # The pattern to identify test files.
 TEST_FILE_PATTERN="_test.sh"
