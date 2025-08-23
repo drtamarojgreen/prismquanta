@@ -104,38 +104,59 @@ step_the_specific_rule_violation_should_be_identified() {
 
 # --- PQL Parsing Step Definitions ---
 
-# Given a valid PQL file with sample commands
+# Given a valid Tasks XML file with a sample task
 step_a_valid_pql_file_with_sample_commands() {
-    cat > sample.pql << 'EOF'
+    # Create a temporary file to store the Tasks XML content
+    CURRENT_PQL_FILE=$(mktemp)
+    cat > "$CURRENT_PQL_FILE" << 'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
-<pql>
-    <command id="summarize">
-        <action>summarize_document</action>
-        <criteria>concise, factual</criteria>
-    </command>
-</pql>
+<tasks>
+  <task id="task-001" type="coding" priority="high" status="pending">
+    <description>Implement a new feature</description>
+    <commands>
+      <command>create_file</command>
+      <command>add_code</command>
+    </commands>
+    <criteria>
+      <criterion>Must be documented</criterion>
+    </criteria>
+  </task>
+</tasks>
 EOF
 }
 
-# Given an invalid PQL file with syntax errors
+# Given an invalid Tasks XML file with syntax errors
 step_an_invalid_pql_file_with_syntax_errors() {
-    cat > invalid.pql << 'EOF'
+    # Create a temporary file to store the invalid Tasks XML content
+    CURRENT_PQL_FILE=$(mktemp)
+    cat > "$CURRENT_PQL_FILE" << 'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
-<pql>
-    <command id="broken">
-        <action>incomplete_action
-        <criteria>missing_closing_tag
-    </command>
+<tasks>
+    <task id="task-001" type="coding">
+        <description>This task is broken</description>
+        <commands>
+            <command>do_something</command>
+        </commands>
+    <!-- Missing closing task tag -->
+</tasks>
 EOF
 }
 
 # When I parse the PQL file
 step_i_parse_the_pql_file() {
-    if xmlstarlet val sample.pql 2>/dev/null; then
+    # Ensure the parse_pql.sh script is executable
+    chmod +x "$PRISM_QUANTA_ROOT/scripts/parse_pql.sh"
+
+    # Call the actual parser script with the 'validate' command
+    # and the path to the temporary PQL file.
+    if "$PRISM_QUANTA_ROOT/scripts/parse_pql.sh" validate "$CURRENT_PQL_FILE" &> /dev/null; then
         PARSE_RESULT="SUCCESS"
     else
         PARSE_RESULT="FAIL"
     fi
+
+    # Clean up the temporary file
+    rm -f "$CURRENT_PQL_FILE"
 }
 
 # Then the parsing should succeed

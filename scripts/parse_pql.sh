@@ -43,15 +43,26 @@ get_criteria() {
 
 # Validate the PQL file against its XSD schema
 validate_pql() {
+  local file_to_validate="$1"
+  if [[ -z "$file_to_validate" ]]; then
+    log_error "Validate command requires a filename."
+    usage
+  fi
+  if [[ ! -f "$file_to_validate" ]]; then
+      log_error "File to validate not found at '$file_to_validate'"
+  fi
   if [[ ! -f "$PQL_SCHEMA" ]]; then
     log_error "PQL schema file not found at '$PQL_SCHEMA'"
   fi
-  log_info "Validating $PQL_FILE against $PQL_SCHEMA..."
+  log_info "Validating $file_to_validate against $PQL_SCHEMA..."
   # Use xmlstarlet to validate. The 'val' command returns non-zero on failure.
-  if xmlstarlet val --err --xsd "$PQL_SCHEMA" "$PQL_FILE"; then
-    log_info "$PQL_FILE is valid."
+  if xmlstarlet val --err --xsd "$PQL_SCHEMA" "$file_to_validate"; then
+    log_info "$file_to_validate is valid."
   else
-    log_error "$PQL_FILE is invalid. Please check against the schema."
+    # We exit with 1 so that scripts calling this can detect failure.
+    # log_error exits the whole shell, which might be too abrupt.
+    echo "[ERROR] $file_to_validate is invalid. Please check against the schema." >&2
+    exit 1
   fi
 }
 
@@ -92,7 +103,7 @@ main() {
     list_by_status) list_by_status "$@" ;;
     commands) get_commands "$@" ;;
     criteria) get_criteria "$@" ;;
-    validate) validate_pql ;;
+    validate) validate_pql "$@" ;;
     ""|--help|-h) usage ;;
     *)
       log_error "Unknown command '$command'"
